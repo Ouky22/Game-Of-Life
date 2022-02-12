@@ -1,6 +1,7 @@
 package ui.gui;
 
 import domain.GameOfLiveField;
+import domain.GameOfLiveManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,13 +10,13 @@ import java.awt.event.ActionListener;
 
 public class FieldPanel extends JPanel {
 
-    private final GameOfLiveField gameOfLiveField;
+    private final GameOfLiveManager gameOfLiveManager;
     private final JButton[][] jButtons;
 
-    public FieldPanel(GameOfLiveField gameOfLiveField) {
-        this.gameOfLiveField = gameOfLiveField;
-        int rows = gameOfLiveField.getHeight();
-        int columns = gameOfLiveField.getWidth();
+    public FieldPanel(GameOfLiveManager gameOfLiveManager) {
+        this.gameOfLiveManager = gameOfLiveManager;
+        int rows = gameOfLiveManager.getFieldHeight();
+        int columns = gameOfLiveManager.getFieldWidth();
 
         this.setLayout(new GridLayout(rows, columns));
 
@@ -78,7 +79,7 @@ public class FieldPanel extends JPanel {
                 int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
 
                 toggleButton(row, column);
-                gameOfLiveField.setCellAt(row, column, !alive);
+                gameOfLiveManager.setCellAt(row, column, !alive);
             }
         }
     }

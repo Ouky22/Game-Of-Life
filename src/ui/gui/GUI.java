@@ -1,6 +1,6 @@
 package ui.gui;
 
-import domain.GameOfLiveField;
+import domain.GameOfLiveManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,44 +11,36 @@ public class GUI extends JFrame {
 
     private final FieldPanel fieldPanel;
 
-    GameOfLiveField gameOfLiveField = new GameOfLiveField(FIELD_HEIGHT, FIELD_WIDTH);
-    boolean gameOfLiveRunning = false;
+    private final GameOfLiveManager gameOfLiveManager = new GameOfLiveManager(FIELD_HEIGHT, FIELD_WIDTH);
+
+    private Timer timer;
 
     public GUI() {
+        // create UI
         this.setLayout(new BorderLayout());
-
-        fieldPanel = new FieldPanel(gameOfLiveField);
-        this.add(fieldPanel, BorderLayout.CENTER);
 
         JButton startBtn = new JButton();
         startBtn.setSize(new Dimension(25, 50));
         startBtn.setText("Start");
         startBtn.setFocusable(false);
         startBtn.addActionListener((e) -> {
-            gameOfLiveRunning = !gameOfLiveRunning;
-            System.out.println("Start clicked");
+            if (timer.isRunning()) timer.stop();
+            else timer.restart();
         });
         this.add(startBtn, BorderLayout.NORTH);
+
+        fieldPanel = new FieldPanel(gameOfLiveManager);
+        this.add(fieldPanel, BorderLayout.CENTER);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(750, 750);
         this.setVisible(true);
+        
 
-        startGameOfLive();
-    }
-
-    private void startGameOfLive() {
-        while (true) {
-            while (gameOfLiveRunning) {
-                for (int[] coordinate : gameOfLiveField.loadNextGeneration())
-                    fieldPanel.toggleButton(coordinate);
-
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        // set Timer
+        timer = new Timer(gameOfLiveManager.getSpeed(), (e) -> {
+            for (int[] coordinate : gameOfLiveManager.loadNextGeneration())
+                fieldPanel.toggleButton(coordinate);
+        });
     }
 }
