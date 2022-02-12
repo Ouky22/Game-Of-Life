@@ -7,7 +7,7 @@ public class GameOfLiveField {
     private final int WIDTH;
     private final int HEIGHT;
 
-    public GameOfLiveField(int height, int width) {
+    GameOfLiveField(int height, int width) {
         field = new boolean[height][width];
         WIDTH = width;
         HEIGHT = height;
@@ -20,14 +20,14 @@ public class GameOfLiveField {
      * @param column column of the cell
      * @param alive  whether the cell should be alive or dead
      */
-    public void setCellAt(int row, int column, boolean alive) {
+    void setCellAt(int row, int column, boolean alive) {
         if (!isCoordinateInField(row, column))
             return;
 
         field[row][column] = alive;
     }
 
-    public boolean[][] getField() {
+    boolean[][] getField() {
         return field;
     }
 
@@ -109,11 +109,11 @@ public class GameOfLiveField {
         return column;
     }
 
-    public int getHeight() {
+    int getHeight() {
         return HEIGHT;
     }
 
-    public int getWidth() {
+    int getWidth() {
         return WIDTH;
     }
 }
