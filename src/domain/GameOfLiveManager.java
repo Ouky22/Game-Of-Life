@@ -1,15 +1,18 @@
 package domain;
 
 
+import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class GameOfLiveManager {
-    private GameOfLiveField gameOfLiveField;
-    private int speed = 1000;
+    private final GameOfLiveField gameOfLiveField;
+    private int delay = 1000;
+    private final Timer timer;
 
-    public GameOfLiveManager(int fieldHeight, int fieldWidth) {
-        gameOfLiveField = new GameOfLiveField(fieldHeight, fieldWidth);
-        this.speed = speed;
+    public GameOfLiveManager(int fieldHeight, int fieldWidth, ActionListener timerListener) {
+        this.gameOfLiveField = new GameOfLiveField(fieldHeight, fieldWidth);
+        this.timer = new Timer(delay, timerListener);
     }
 
     public ArrayList<int[]> loadNextGeneration() {
@@ -27,12 +30,32 @@ public class GameOfLiveManager {
         gameOfLiveField.setCellAt(row, column, alive);
     }
 
-    public int getSpeed() {
-        return speed;
+    public void startGameOfLive() {
+        timer.restart();
     }
 
-    public void setSpeed(int speed) {
-        this.speed = speed;
+    public void stopGameOfLive() {
+        timer.stop();
+    }
+
+    public boolean isGameOfLiveRunning() {
+        return timer.isRunning();
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    /**
+     * sets the delay between each Generation
+     * @param delay in milliseconds
+     */
+    public void setDelay(int delay) {
+        this.delay = delay;
+        this.timer.stop();
+        this.timer.setInitialDelay(delay);
+        this.timer.setDelay(delay);
+        this.timer.restart();
     }
 
     public int getFieldHeight() {
