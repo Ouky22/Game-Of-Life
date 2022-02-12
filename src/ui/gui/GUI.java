@@ -19,13 +19,20 @@ public class GUI extends JFrame {
         // create UI
         this.setLayout(new BorderLayout());
 
+        // add start/restart button
         JButton startBtn = new JButton();
         startBtn.setSize(new Dimension(25, 50));
         startBtn.setText("Start");
         startBtn.setFocusable(false);
         startBtn.addActionListener((e) -> {
-            if (timer.isRunning()) timer.stop();
-            else timer.restart();
+            if (timer.isRunning()) {
+                timer.stop();
+                startBtn.setText("Start");
+            }
+            else {
+                timer.restart();
+                startBtn.setText("Stop");
+            }
         });
         this.add(startBtn, BorderLayout.NORTH);
 
@@ -35,7 +42,7 @@ public class GUI extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(750, 750);
         this.setVisible(true);
-        
+
 
         // set Timer
         timer = new Timer(gameOfLiveManager.getSpeed(), (e) -> {
