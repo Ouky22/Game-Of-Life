@@ -157,6 +157,60 @@ public class GameOfLiveFieldTest {
         }
     }
 
+    @Test
+    void testKillAllCellsExceptOf() {
+        int width = 10;
+        int height = 10;
+        GameOfLiveField gameOfLiveField = new GameOfLiveField(height, width);
+
+        // no cell is alive, so no cell can be killed
+        assertEquals(0, gameOfLiveField.killAllCellsExceptOf().size());
+
+        // bring cells to life...
+        int[][] sparedCells = {{0, 0}, {height - 1, width - 1}};
+        int[][] cellsToBeKilled = {{5, 5}, {0, width - 1}};
+        for (int[] coordinate : sparedCells)
+            gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
+        for (int[] coordinate : cellsToBeKilled)
+            gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
+
+        // ...and kill them except of the spared cells
+        ArrayList<int[]> killedCellsPositions = gameOfLiveField.killAllCellsExceptOf(sparedCells);
+
+        // so all cells of the field except of the spared cells should be dead
+        for (int row = 0; row < gameOfLiveField.getField().length; row++)
+            for (int col = 0; col < gameOfLiveField.getField()[row].length; col++) {
+                // determine if the current cell is a cell that should have been spared or killed
+                boolean isSparedCellPosition = false;
+                for (int[] sparedCellPos : sparedCells)
+                    if (Arrays.equals(sparedCellPos, new int[]{row, col})) {
+                        isSparedCellPosition = true;
+                        break;
+                    }
+
+                // if cell should have been spared, it should be still alive...
+                if (isSparedCellPosition)
+                    assertTrue(gameOfLiveField.getField()[row][col]);
+                else // ...otherwise it should be dead
+                    assertFalse(gameOfLiveField.getField()[row][col]);
+            }
+
+        // the amount of killed cells should be the size of cellsToBeKilled...
+        assertEquals(cellsToBeKilled.length, killedCellsPositions.size());
+
+        // ...and the positions of the killed cells should match the positions of cellsToBeKilled
+        for (int[] cellToBeKilledPos : cellsToBeKilled) {
+            boolean containsCellPosition = false;
+            for (int[] killedCellPos : killedCellsPositions) {
+                if (Arrays.equals(cellToBeKilledPos, killedCellPos)) {
+                    containsCellPosition = true;
+                    break;
+                }
+            }
+            assertTrue(containsCellPosition);
+        }
+    }
+
 
     @Test
     void testGetNextRowAndColumn() {

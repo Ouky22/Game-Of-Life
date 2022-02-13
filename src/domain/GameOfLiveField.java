@@ -1,6 +1,8 @@
 package domain;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GameOfLiveField {
     private boolean[][] field;
@@ -71,6 +73,36 @@ public class GameOfLiveField {
             for (int col = 0; col < field[row].length; col++) {
                 // if cell is alive...
                 if (field[row][col]) {
+                    // ...kill it
+                    field[row][col] = false;
+                    killedCells.add(new int[]{row, col});
+                }
+            }
+        return killedCells;
+    }
+
+    /**
+     * Kills al cells in the field except at the given coordinates
+     * @param cellPositions coordinates of cells that should not be killed
+     * @return  coordinates of cells which got killed
+     */
+    public ArrayList<int[]> killAllCellsExceptOf(int[]... cellPositions) {
+        ArrayList<int[]> killedCells = new ArrayList<>();
+
+        for (int row = 0; row < field.length; row++)
+            for (int col = 0; col < field[row].length; col++) {
+                boolean shouldBeKilled = true;
+
+                // check if the current position matches one of the positions of the cells which
+                // should not be killed
+                for (int[] sparedCellPos : cellPositions)
+                    if (Arrays.equals(sparedCellPos, new int[]{row, col})) {
+                        shouldBeKilled = false;
+                        break;
+                    }
+
+                // if cell should be killed and is alive
+                if (shouldBeKilled && field[row][col]) {
                     // ...kill it
                     field[row][col] = false;
                     killedCells.add(new int[]{row, col});
