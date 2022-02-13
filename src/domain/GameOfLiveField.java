@@ -162,6 +162,17 @@ public class GameOfLiveField {
         return column;
     }
 
+    /**
+     * check if cell at given coordinate is alive
+     * @param coordinate of the cell
+     * @return whether the cell is alive or dead
+     */
+    public boolean isCellAliveAt(int[] coordinate) {
+        int row = coordinate[0];
+        int column = coordinate[1];
+        return field[row][column];
+    }
+
     int getHeight() {
         return HEIGHT;
     }
