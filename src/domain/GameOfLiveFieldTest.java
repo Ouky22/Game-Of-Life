@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -134,22 +135,28 @@ public class GameOfLiveFieldTest {
         for (int[] coordinate : cellPositions)
             gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
         // ...and kill them
-        ArrayList<int[]> killedCells = gameOfLiveField.killAllCells();
+        ArrayList<int[]> killedCellsPositions = gameOfLiveField.killAllCells();
+
+        // all cells in the field should be dead
+        for (boolean[] row : gameOfLiveField.getField())
+            for (boolean col : row)
+                assertFalse(col);
 
         // so the amount of the killed cells equals the amount of cells that were brought to life
-        assertEquals(cellPositions.length, killedCells.size());
+        assertEquals(cellPositions.length, killedCellsPositions.size());
 
-        // ...and the positions of the killed cells should match the positions the cells brought to life
+        // ...and the positions of the killed cells should match the positions of the cells brought to life
         for (int[] cellPosition : cellPositions) {
             boolean containsCellPosition = false;
-            for (int[] killedCellPositions : killedCells)
-                if (killedCellPositions[0] == cellPosition[0] && killedCellPositions[1] == cellPosition[1]) {
+            for (int[] killedCellPosition : killedCellsPositions)
+                if (Arrays.equals(cellPosition, killedCellPosition)) {
                     containsCellPosition = true;
                     break;
                 }
             assertTrue(containsCellPosition);
         }
     }
+
 
     @Test
     void testGetNextRowAndColumn() {
