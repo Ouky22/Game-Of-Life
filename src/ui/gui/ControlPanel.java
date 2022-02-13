@@ -10,10 +10,10 @@ public class ControlPanel extends JPanel {
     public ControlPanel(GameOfLiveManager gameOfLiveManager) {
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 15));
 
+        Dimension buttonDimension = new Dimension(25, 50);
         // add start/restart button to panel
-        JButton startBtn = new JButton();
-        startBtn.setSize(new Dimension(25, 50));
-        startBtn.setText("Start");
+        JButton startBtn = new JButton("Start");
+        startBtn.setSize(buttonDimension);
         startBtn.setFocusable(false);
         startBtn.addActionListener((e) -> {
             if (gameOfLiveManager.isGameOfLiveRunning()) {
@@ -25,6 +25,15 @@ public class ControlPanel extends JPanel {
             }
         });
         this.add(startBtn);
+
+
+        // add button for jumping to next generation
+        // if the game of live is not running, only generate and display the following generation
+        JButton jumpButton = new JButton("Next generation");
+        jumpButton.setSize(buttonDimension);
+        jumpButton.setFocusable(false);
+        jumpButton.addActionListener((e) -> gameOfLiveManager.triggerNextGeneration());
+        this.add(jumpButton);
 
 
         // add JSlider for selecting the delay between creating the generations
@@ -46,5 +55,7 @@ public class ControlPanel extends JPanel {
         delaySlider.setLabelTable(labelTable);
         delaySlider.setPaintLabels(true);
         this.add(delaySlider);
+
+
     }
 }

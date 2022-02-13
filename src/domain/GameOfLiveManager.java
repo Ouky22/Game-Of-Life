@@ -32,11 +32,28 @@ public class GameOfLiveManager {
     }
 
     public void startGameOfLive() {
+        timer.setRepeats(true);
         timer.restart();
     }
 
     public void stopGameOfLive() {
         timer.stop();
+    }
+
+    /**
+     * trigger timer so the next generation will be generated and drawn.
+     * If the timer is running before this method call, it will continue afterwards.
+     * If the timer is not running before this method call,
+     * it will only trigger the timer once and then stops again.
+     */
+    public void triggerNextGeneration() {
+        // if the timer is not running, the timer should fire only once (until it is started again)
+        if (!timer.isRunning())
+            timer.setRepeats(false);
+
+        // restart timer so that the next event is fired after the initial delay of timer
+        // causing the next generation to be created and displayed
+        timer.restart();
     }
 
     public boolean isGameOfLiveRunning() {
