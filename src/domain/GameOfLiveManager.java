@@ -13,6 +13,7 @@ public class GameOfLiveManager {
     public GameOfLiveManager(int fieldHeight, int fieldWidth, ActionListener timerListener) {
         this.gameOfLiveField = new GameOfLiveField(fieldHeight, fieldWidth);
         this.timer = new Timer(delay, timerListener);
+        timer.setInitialDelay(100);
     }
 
     public ArrayList<int[]> loadNextGeneration() {
@@ -52,10 +53,7 @@ public class GameOfLiveManager {
      */
     public void setDelay(int delay) {
         this.delay = delay;
-        this.timer.stop();
-        this.timer.setInitialDelay(delay);
         this.timer.setDelay(delay);
-        this.timer.restart();
     }
 
     public int getFieldHeight() {
