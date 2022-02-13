@@ -33,6 +33,7 @@ public class GameOfLiveField {
 
     /**
      * loads the next generation of cells.
+     *
      * @return all cells that got a new life status (so the life status got toggled)
      */
     public ArrayList<int[]> loadNextGeneration() {
@@ -56,6 +57,26 @@ public class GameOfLiveField {
             field[coordinate[0]][coordinate[1]] = !field[coordinate[0]][coordinate[1]];
 
         return toggledCells;
+    }
+
+    /**
+     * Kills all cells in the field
+     *
+     * @return coordinates of cells which got killed
+     */
+    public ArrayList<int[]> killAllCells() {
+        ArrayList<int[]> killedCells = new ArrayList<>();
+
+        for (int row = 0; row < field.length; row++)
+            for (int col = 0; col < field[row].length; col++) {
+                // if cell is alive...
+                if (field[row][col]) {
+                    // ...kill it
+                    field[row][col] = false;
+                    killedCells.add(new int[]{row, col});
+                }
+            }
+        return killedCells;
     }
 
     int getAmountLivingNeighbours(int row, int column) {

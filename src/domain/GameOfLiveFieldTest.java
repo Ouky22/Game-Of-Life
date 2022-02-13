@@ -86,11 +86,11 @@ public class GameOfLiveFieldTest {
         assertFalse(gameOfLiveField.isCoordinateInField(height, 0));
 
         // test coordinates that are inside the field
-        assertTrue(gameOfLiveField.isCoordinateInField(0,0));
+        assertTrue(gameOfLiveField.isCoordinateInField(0, 0));
         assertTrue(gameOfLiveField.isCoordinateInField(0, width - 1));
-        assertTrue(gameOfLiveField.isCoordinateInField(height - 1,0));
-        assertTrue(gameOfLiveField.isCoordinateInField(height - 1,width - 1));
-        assertTrue(gameOfLiveField.isCoordinateInField(7,5));
+        assertTrue(gameOfLiveField.isCoordinateInField(height - 1, 0));
+        assertTrue(gameOfLiveField.isCoordinateInField(height - 1, width - 1));
+        assertTrue(gameOfLiveField.isCoordinateInField(7, 5));
     }
 
     @Test
@@ -117,6 +117,37 @@ public class GameOfLiveFieldTest {
 
             // load next generation
             gameOfLiveField.loadNextGeneration();
+        }
+    }
+
+    @Test
+    void testKillAllCells() {
+        int width = 10;
+        int height = 10;
+        GameOfLiveField gameOfLiveField = new GameOfLiveField(height, width);
+
+        // no cell is alive, so no cell can be killed
+        assertEquals(0, gameOfLiveField.killAllCells().size());
+
+        // bring cells to life...
+        int[][] cellPositions = {{0, 0}, {height - 1, width - 1}, {height - 1, 0}};
+        for (int[] coordinate : cellPositions)
+            gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
+        // ...and kill them
+        ArrayList<int[]> killedCells = gameOfLiveField.killAllCells();
+
+        // so the amount of the killed cells equals the amount of cells that were brought to life
+        assertEquals(cellPositions.length, killedCells.size());
+
+        // ...and the positions of the killed cells should match the positions the cells brought to life
+        for (int[] cellPosition : cellPositions) {
+            boolean containsCellPosition = false;
+            for (int[] killedCellPositions : killedCells)
+                if (killedCellPositions[0] == cellPosition[0] && killedCellPositions[1] == cellPosition[1]) {
+                    containsCellPosition = true;
+                    break;
+                }
+            assertTrue(containsCellPosition);
         }
     }
 
