@@ -20,46 +20,12 @@ public class GUI extends JFrame {
     public GUI() {
         this.setLayout(new BorderLayout());
 
-        // JPanel for buttons and slider
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEADING, 50, 15));
+        // add ControlPanel, which is for adjusting settings for the gameOfLive
+        this.add(new ControlPanel(gameOfLiveManager), BorderLayout.NORTH);
 
-        // add start/restart button to panel
-        JButton startBtn = new JButton();
-        startBtn.setSize(new Dimension(25, 50));
-        startBtn.setText("Start");
-        startBtn.setFocusable(false);
-        startBtn.addActionListener((e) -> {
-            if (gameOfLiveManager.isGameOfLiveRunning()) {
-                gameOfLiveManager.stopGameOfLive();
-                startBtn.setText("Start");
-            } else {
-                gameOfLiveManager.startGameOfLive();
-                startBtn.setText("Stop");
-            }
-        });
-        panel.add(startBtn);
-
-        // add JSlider for speed selection to panel
-        JSlider speedSlider = new JSlider();
-        int maxSpeedValue = 20;
-        speedSlider.setMaximum(maxSpeedValue);
-        speedSlider.setMinimum(1);
-        speedSlider.setValue(10);
-        speedSlider.addChangeListener((e) -> {
-            int currentSpeed = gameOfLiveManager.getDelay();
-            int currentValue = speedSlider.getValue();
-            // only change speed when the slider has a final result
-            // or if the difference between current slider value and speed is greater than 3
-            if (speedSlider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
-                gameOfLiveManager.setDelay((maxSpeedValue - currentValue) * 100);
-        });
-        panel.add(speedSlider);
-        this.add(panel, BorderLayout.NORTH);
-
-        // add fieldPanel, which contains the field
+        // add fieldPanel, which contains the gameOfLive field
         fieldPanel = new FieldPanel(gameOfLiveManager);
         this.add(fieldPanel, BorderLayout.CENTER);
-
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(750, 750);
