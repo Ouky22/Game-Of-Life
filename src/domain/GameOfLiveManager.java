@@ -10,13 +10,24 @@ public class GameOfLiveManager {
     private int delay = 1000;
     private final Timer timer;
 
+    private int generationCounter = 1;
+
+    // contains the positions of the cells in the first generation
+    private final ArrayList<int[]> startCellPositions = new ArrayList<>();
+
     public GameOfLiveManager(int fieldHeight, int fieldWidth, ActionListener timerListener) {
         this.gameOfLiveField = new GameOfLiveField(fieldHeight, fieldWidth);
         this.timer = new Timer(delay, timerListener);
         timer.setInitialDelay(50);
     }
 
+    /**
+     * loads the next generation of the game of life
+     *
+     * @return coordinates of cells which got a new life status
+     */
     public ArrayList<int[]> loadNextGeneration() {
+        generationCounter++;
         return gameOfLiveField.loadNextGeneration();
     }
 
@@ -29,6 +40,9 @@ public class GameOfLiveManager {
      */
     public void setCellAt(int row, int column, boolean alive) {
         gameOfLiveField.setCellAt(row, column, alive);
+
+        if (generationCounter == 1)
+            startCellPositions.add(new int[]{row, column});
     }
 
     public void startGameOfLive() {
@@ -56,6 +70,15 @@ public class GameOfLiveManager {
         timer.restart();
     }
 
+    /**
+     * Kills all cells in the field
+     *
+     * @return coordinates of cells which got killed
+     */
+    public ArrayList<int[]> killAllCells() {
+        return gameOfLiveField.killAllCells();
+    }
+
     public boolean isGameOfLiveRunning() {
         return timer.isRunning();
     }
@@ -66,6 +89,7 @@ public class GameOfLiveManager {
 
     /**
      * sets the delay between each Generation
+     *
      * @param delay in milliseconds
      */
     public void setDelay(int delay) {
