@@ -70,6 +70,33 @@ public class GameOfLiveManager {
         timer.restart();
     }
 
+
+    /**
+     * Kills all cells in the field except the cells from the first generation.
+     * If cells from the first generation are dead, they are brought back to live.
+     *
+     * @return coordinates of cells which got a new life status (deed or alive)
+     */
+    public ArrayList<int[]> resetToFirstGeneration() {
+        // convert the startCellPositions list to array
+        int[][] startPositionsArray = new int[startCellPositions.size()][2];
+        for (int row = 0; row < startCellPositions.size(); row++)
+            startPositionsArray[row] = startCellPositions.get(row);
+
+        // kill all cells in the field except the cell(s) from the first generation (in startCellPositions)
+        ArrayList<int[]> toggledCells = gameOfLiveField.killAllCellsExceptOf(startPositionsArray);
+
+        // if a cell from the first generation is dead, bring it back to life
+        for (int[] coordinate : startCellPositions)
+            if (!gameOfLiveField.isCellAliveAt(coordinate)) {
+                setCellAt(coordinate[0], coordinate[1], true);
+                toggledCells.add(coordinate);
+            }
+        generationCounter = 1;
+
+        return toggledCells;
+    }
+
     /**
      * Kills all cells in the field
      *
