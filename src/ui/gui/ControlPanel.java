@@ -4,6 +4,7 @@ import domain.GameOfLiveManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Hashtable;
 
 public class ControlPanel extends JPanel {
     public ControlPanel(GameOfLiveManager gameOfLiveManager) {
@@ -25,22 +26,25 @@ public class ControlPanel extends JPanel {
         });
         this.add(startBtn);
 
-        // add JSlider for speed selection to panel
-        JSlider speedSlider = new JSlider();
-        int maxSpeedValue = 20;
-        speedSlider.setMaximum(maxSpeedValue);
-        speedSlider.setMinimum(1);
-        speedSlider.setValue(10);
-        speedSlider.addChangeListener((e) -> {
+
+        // add JSlider for selecting the delay between creating the generations
+        int maxDelay = 20;
+        int minDelay = 1;
+        JSlider delaySlider = new JSlider(minDelay, maxDelay, (maxDelay - minDelay) / 2);
+        delaySlider.addChangeListener((e) -> {
             int currentSpeed = gameOfLiveManager.getDelay();
-            int currentValue = speedSlider.getValue();
+            int currentValue = delaySlider.getValue();
             // only change speed when the slider has a final result
             // or if the difference between current slider value and speed is greater than 3
-            if (speedSlider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
-                gameOfLiveManager.setDelay((maxSpeedValue - currentValue) * 100);
+            if (delaySlider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
+                gameOfLiveManager.setDelay((maxDelay - currentValue) * 100);
         });
-
-
-        this.add(speedSlider);
+        // Hashtable which contains labels for min and max value of slider
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        labelTable.put(minDelay, new JLabel("slow"));
+        labelTable.put(maxDelay, new JLabel("fast"));
+        delaySlider.setLabelTable(labelTable);
+        delaySlider.setPaintLabels(true);
+        this.add(delaySlider);
     }
 }
