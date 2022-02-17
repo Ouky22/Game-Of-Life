@@ -4,6 +4,7 @@ package domain;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GameOfLiveManager {
     private final GameOfLiveField gameOfLiveField;
@@ -13,7 +14,7 @@ public class GameOfLiveManager {
     private int generationCounter = 1;
 
     // contains the positions of the cells in the first generation
-    private final ArrayList<int[]> startCellPositions = new ArrayList<>();
+    private final ArrayList<int[]> firstGenCellPositions = new ArrayList<>();
 
     public GameOfLiveManager(int fieldHeight, int fieldWidth, ActionListener timerListener) {
         this.gameOfLiveField = new GameOfLiveField(fieldHeight, fieldWidth);
@@ -41,8 +42,23 @@ public class GameOfLiveManager {
     public void setCellAt(int row, int column, boolean alive) {
         gameOfLiveField.setCellAt(row, column, alive);
 
-        if (generationCounter == 1)
-            startCellPositions.add(new int[]{row, column});
+        // if it is the first generation, the positions of the living cells
+        // needs to be updated in the firstGenCellPositions list. Otherwise, return.
+        if (generationCounter != 1)
+            return;
+
+        // if a cell is brought to life, add it to firstGenCellPositions
+        if (alive) {
+            firstGenCellPositions.add(new int[]{row, column});
+            return;
+        }
+
+        // if a cell is killed, remove it from firstGenCellPositions
+        for (int i = 0; i < firstGenCellPositions.size(); i++)
+            if (firstGenCellPositions.get(i)[0] == row && firstGenCellPositions.get(i)[1] == column) {
+                firstGenCellPositions.remove(i);
+                break;
+            }
     }
 
     public void startGameOfLive() {
@@ -78,15 +94,15 @@ public class GameOfLiveManager {
      */
     public ArrayList<int[]> resetToFirstGeneration() {
         // convert the startCellPositions list to array
-        int[][] startPositionsArray = new int[startCellPositions.size()][2];
-        for (int row = 0; row < startCellPositions.size(); row++)
-            startPositionsArray[row] = startCellPositions.get(row);
+        int[][] startPositionsArray = new int[firstGenCellPositions.size()][2];
+        for (int row = 0; row < firstGenCellPositions.size(); row++)
+            startPositionsArray[row] = firstGenCellPositions.get(row);
 
         // kill all cells in the field except the cell(s) from the first generation (in startCellPositions)
         ArrayList<int[]> toggledCells = gameOfLiveField.killAllCellsExceptOf(startPositionsArray);
 
         // if a cell from the first generation is dead, bring it back to life
-        for (int[] coordinate : startCellPositions)
+        for (int[] coordinate : firstGenCellPositions)
             if (!gameOfLiveField.isCellAliveAt(coordinate)) {
                 setCellAt(coordinate[0], coordinate[1], true);
                 toggledCells.add(coordinate);
@@ -102,7 +118,7 @@ public class GameOfLiveManager {
      * @return coordinates of cells which got killed
      */
     public ArrayList<int[]> killAllCells() {
-        startCellPositions.clear();
+        firstGenCellPositions.clear();
         return gameOfLiveField.killAllCells();
     }
 
