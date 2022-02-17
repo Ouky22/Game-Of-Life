@@ -7,8 +7,11 @@ import java.awt.*;
 import java.util.Hashtable;
 
 public class ControlPanel extends JPanel {
+
+    private JLabel generationTextLabel;
+
     public ControlPanel(GameOfLiveManager gameOfLiveManager, GUI gui) {
-        this.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 15));
+        this.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15));
 
         Dimension buttonDimension = new Dimension(25, 50);
         // add start/restart button to panel
@@ -35,6 +38,25 @@ public class ControlPanel extends JPanel {
         jumpButton.addActionListener((e) -> gameOfLiveManager.triggerNextGeneration());
         this.add(jumpButton);
 
+        
+        // add button for clearing the field
+        JButton clearBtn = new JButton("Clear");
+        clearBtn.setSize(buttonDimension);
+        clearBtn.setFocusable(false);
+        clearBtn.addActionListener((e) -> {
+            // if the current generation is not the first generation...
+            if (gameOfLiveManager.getGenerationCounter() > 1) {
+                //... reset to the first generation and update fieldPanel...
+                gui.toggleButtonsInFieldPanel(gameOfLiveManager.resetToFirstGeneration());
+            } else {
+                // ...otherwise kill all cells for clearing the field
+                gui.toggleButtonsInFieldPanel(gameOfLiveManager.killAllCells());
+            }
+
+            updateGenerationTextLabel(gameOfLiveManager.getGenerationCounter());
+        });
+        this.add(clearBtn);
+
 
         // add JSlider for selecting the delay between creating the generations
         int maxDelay = 20;
@@ -57,20 +79,12 @@ public class ControlPanel extends JPanel {
         this.add(delaySlider);
 
 
-        // add button for clearing the field
-        JButton clearBtn = new JButton("Clear");
-        clearBtn.setSize(buttonDimension);
-        clearBtn.setFocusable(false);
-        clearBtn.addActionListener((e) -> {
-            // if the current generation is not the first generation...
-            if (gameOfLiveManager.getGenerationCounter() > 1) {
-                //... reset to the first generation and update fieldPanel...
-                gui.toggleButtonsInFieldPanel(gameOfLiveManager.resetToFirstGeneration());
-            } else {
-                // ...otherwise kill all cells for clearing the field
-                gui.toggleButtonsInFieldPanel(gameOfLiveManager.killAllCells());
-            }
-        });
-        this.add(clearBtn);
+        // add textField for displaying the generation counter
+        this.generationTextLabel = new JLabel("Generation: 1");
+        this.add(generationTextLabel);
+    }
+
+    public void updateGenerationTextLabel(int generationCounter) {
+        generationTextLabel.setText("Generation: " + generationCounter);
     }
 }
