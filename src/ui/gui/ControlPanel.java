@@ -8,7 +8,8 @@ import java.util.Hashtable;
 
 public class ControlPanel extends JPanel {
 
-    private JLabel generationTextLabel;
+    private final JLabel generationTextLabel;
+    private final JButton resetClearButton;
 
     public ControlPanel(GameOfLiveManager gameOfLiveManager, GUI gui) {
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15));
@@ -38,16 +39,17 @@ public class ControlPanel extends JPanel {
         jumpButton.addActionListener((e) -> gameOfLiveManager.triggerNextGeneration());
         this.add(jumpButton);
 
-        
+
         // add button for clearing the field
-        JButton clearBtn = new JButton("Clear");
-        clearBtn.setSize(buttonDimension);
-        clearBtn.setFocusable(false);
-        clearBtn.addActionListener((e) -> {
+        resetClearButton = new JButton("Clear");
+        resetClearButton.setSize(buttonDimension);
+        resetClearButton.setFocusable(false);
+        resetClearButton.addActionListener((e) -> {
             // if the current generation is not the first generation...
             if (gameOfLiveManager.getGenerationCounter() > 1) {
                 //... reset to the first generation and update fieldPanel...
                 gui.toggleButtonsInFieldPanel(gameOfLiveManager.resetToFirstGeneration());
+                resetClearButton.setText("Clear");
             } else {
                 // ...otherwise kill all cells for clearing the field
                 gui.toggleButtonsInFieldPanel(gameOfLiveManager.killAllCells());
@@ -55,7 +57,7 @@ public class ControlPanel extends JPanel {
 
             updateGenerationTextLabel(gameOfLiveManager.getGenerationCounter());
         });
-        this.add(clearBtn);
+        this.add(resetClearButton);
 
 
         // add JSlider for selecting the delay between creating the generations
@@ -86,5 +88,8 @@ public class ControlPanel extends JPanel {
 
     public void updateGenerationTextLabel(int generationCounter) {
         generationTextLabel.setText("Generation: " + generationCounter);
+
+        if (generationCounter > 1)
+            resetClearButton.setText("Reset");
     }
 }
