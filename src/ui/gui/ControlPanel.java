@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.Hashtable;
 
 public class ControlPanel extends JPanel {
-    public ControlPanel(GameOfLiveManager gameOfLiveManager) {
+    public ControlPanel(GameOfLiveManager gameOfLiveManager, GUI gui) {
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 50, 15));
 
         Dimension buttonDimension = new Dimension(25, 50);
@@ -57,5 +57,20 @@ public class ControlPanel extends JPanel {
         this.add(delaySlider);
 
 
+        // add button for clearing the field
+        JButton clearBtn = new JButton("Clear");
+        clearBtn.setSize(buttonDimension);
+        clearBtn.setFocusable(false);
+        clearBtn.addActionListener((e) -> {
+            // if the current generation is not the first generation...
+            if (gameOfLiveManager.getGenerationCounter() > 1) {
+                //... reset to the first generation and update fieldPanel...
+                gui.toggleButtonsInFieldPanel(gameOfLiveManager.resetToFirstGeneration());
+            } else {
+                // ...otherwise kill all cells for clearing the field
+                gui.toggleButtonsInFieldPanel(gameOfLiveManager.killAllCells());
+            }
+        });
+        this.add(clearBtn);
     }
 }

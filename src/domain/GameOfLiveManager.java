@@ -70,7 +70,6 @@ public class GameOfLiveManager {
         timer.restart();
     }
 
-
     /**
      * Kills all cells in the field except the cells from the first generation.
      * If cells from the first generation are dead, they are brought back to live.
@@ -103,6 +102,7 @@ public class GameOfLiveManager {
      * @return coordinates of cells which got killed
      */
     public ArrayList<int[]> killAllCells() {
+        startCellPositions.clear();
         return gameOfLiveField.killAllCells();
     }
 
@@ -122,6 +122,10 @@ public class GameOfLiveManager {
     public void setDelay(int delay) {
         this.delay = delay;
         this.timer.setDelay(delay);
+    }
+
+    public int getGenerationCounter() {
+        return generationCounter;
     }
 
     public int getFieldHeight() {
