@@ -1,12 +1,12 @@
-package domain;
+package main.controll;
 
+import main.data.GameOfLiveField;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-public class GameOfLiveManager {
+public class GameOfLiveController {
     private final GameOfLiveField gameOfLiveField;
     private int delay = 1000;
     private final Timer timer;
@@ -16,7 +16,7 @@ public class GameOfLiveManager {
     // contains the positions of the cells in the first generation
     private final ArrayList<int[]> firstGenCellPositions = new ArrayList<>();
 
-    public GameOfLiveManager(int fieldHeight, int fieldWidth, ActionListener timerListener) {
+    public GameOfLiveController(int fieldHeight, int fieldWidth, ActionListener timerListener) {
         this.gameOfLiveField = new GameOfLiveField(fieldHeight, fieldWidth);
         this.timer = new Timer(delay, timerListener);
         timer.setInitialDelay(50);

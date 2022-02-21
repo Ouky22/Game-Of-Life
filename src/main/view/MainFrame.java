@@ -1,6 +1,7 @@
-package ui;
+package main.view;
 
-import domain.GameOfLiveManager;
+
+import main.controll.GameOfLiveController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,25 +9,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class GUI extends JFrame {
+public class MainFrame extends JFrame {
     private final int FIELD_WIDTH = 50;
     private final int FIELD_HEIGHT = 50;
 
     private final FieldPanel fieldPanel;
     private final ControlPanel controlPanel;
 
-    private final GameOfLiveManager gameOfLiveManager
-            = new GameOfLiveManager(FIELD_HEIGHT, FIELD_WIDTH, new TimerListener());
+    private final GameOfLiveController gameOfLiveController
+            = new GameOfLiveController(FIELD_HEIGHT, FIELD_WIDTH, new TimerListener());
 
 
-    public GUI() {
+    public MainFrame() {
         this.setLayout(new BorderLayout());
 
         // add fieldPanel, which contains the gameOfLive field
-        this.add(fieldPanel = new FieldPanel(gameOfLiveManager), BorderLayout.CENTER);
+        this.add(fieldPanel = new FieldPanel(gameOfLiveController), BorderLayout.CENTER);
 
         // add ControlPanel, which is for adjusting settings for the gameOfLive
-        this.add(controlPanel = new ControlPanel(gameOfLiveManager, this), BorderLayout.NORTH);
+        this.add(controlPanel = new ControlPanel(gameOfLiveController, this), BorderLayout.NORTH);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(750, 750);
@@ -45,10 +46,10 @@ public class GUI extends JFrame {
     class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            for (int[] coordinate : gameOfLiveManager.loadNextGeneration())
+            for (int[] coordinate : gameOfLiveController.loadNextGeneration())
                 fieldPanel.toggleButton(coordinate);
 
-            controlPanel.updateGenerationTextLabel(gameOfLiveManager.getGenerationCounter());
+            controlPanel.updateGenerationTextLabel(gameOfLiveController.getGenerationCounter());
         }
     }
 }

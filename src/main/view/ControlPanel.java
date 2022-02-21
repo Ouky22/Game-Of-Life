@@ -1,6 +1,6 @@
-package ui;
+package main.view;
 
-import domain.GameOfLiveManager;
+import main.controll.GameOfLiveController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ public class ControlPanel extends JPanel {
     private final JLabel generationTextLabel;
     private final JButton resetClearButton;
 
-    public ControlPanel(GameOfLiveManager gameOfLiveManager, GUI gui) {
+    public ControlPanel(GameOfLiveController gameOfLiveController, MainFrame gui) {
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15));
 
         Dimension buttonDimension = new Dimension(25, 50);
@@ -20,11 +20,11 @@ public class ControlPanel extends JPanel {
         startBtn.setSize(buttonDimension);
         startBtn.setFocusable(false);
         startBtn.addActionListener((e) -> {
-            if (gameOfLiveManager.isGameOfLiveRunning()) {
-                gameOfLiveManager.stopGameOfLive();
+            if (gameOfLiveController.isGameOfLiveRunning()) {
+                gameOfLiveController.stopGameOfLive();
                 startBtn.setText("Start");
             } else {
-                gameOfLiveManager.startGameOfLive();
+                gameOfLiveController.startGameOfLive();
                 startBtn.setText("Stop");
             }
         });
@@ -36,7 +36,7 @@ public class ControlPanel extends JPanel {
         JButton jumpButton = new JButton("Next generation");
         jumpButton.setSize(buttonDimension);
         jumpButton.setFocusable(false);
-        jumpButton.addActionListener((e) -> gameOfLiveManager.triggerNextGeneration());
+        jumpButton.addActionListener((e) -> gameOfLiveController.triggerNextGeneration());
         this.add(jumpButton);
 
 
@@ -46,16 +46,16 @@ public class ControlPanel extends JPanel {
         resetClearButton.setFocusable(false);
         resetClearButton.addActionListener((e) -> {
             // if the current generation is not the first generation...
-            if (gameOfLiveManager.getGenerationCounter() > 1) {
+            if (gameOfLiveController.getGenerationCounter() > 1) {
                 //... reset to the first generation and update fieldPanel...
-                gui.toggleButtonsInFieldPanel(gameOfLiveManager.resetToFirstGeneration());
+                gui.toggleButtonsInFieldPanel(gameOfLiveController.resetToFirstGeneration());
                 resetClearButton.setText("Clear");
             } else {
                 // ...otherwise kill all cells for clearing the field
-                gui.toggleButtonsInFieldPanel(gameOfLiveManager.killAllCells());
+                gui.toggleButtonsInFieldPanel(gameOfLiveController.killAllCells());
             }
 
-            updateGenerationTextLabel(gameOfLiveManager.getGenerationCounter());
+            updateGenerationTextLabel(gameOfLiveController.getGenerationCounter());
         });
         this.add(resetClearButton);
 
@@ -65,12 +65,12 @@ public class ControlPanel extends JPanel {
         int minDelay = 1;
         JSlider delaySlider = new JSlider(minDelay, maxDelay, (maxDelay - minDelay) / 2);
         delaySlider.addChangeListener((e) -> {
-            int currentSpeed = gameOfLiveManager.getDelay();
+            int currentSpeed = gameOfLiveController.getDelay();
             int currentValue = delaySlider.getValue();
             // only change speed when the slider has a final result
             // or if the difference between current slider value and speed is greater than 3
             if (delaySlider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
-                gameOfLiveManager.setDelay((maxDelay - currentValue) * 100);
+                gameOfLiveController.setDelay((maxDelay - currentValue) * 100);
         });
         // Hashtable which contains labels for min and max value of slider
         Hashtable<Integer, JLabel> labelTable = new Hashtable<>();

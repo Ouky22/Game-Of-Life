@@ -1,15 +1,14 @@
-package domain;
+package main.data;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GameOfLiveField {
-    private boolean[][] field;
+    private final boolean[][] field;
     private final int WIDTH;
     private final int HEIGHT;
 
-    GameOfLiveField(int height, int width) {
+    public GameOfLiveField(int height, int width) {
         field = new boolean[height][width];
         WIDTH = width;
         HEIGHT = height;
@@ -22,7 +21,7 @@ public class GameOfLiveField {
      * @param column column of the cell
      * @param alive  whether the cell should be alive or dead
      */
-    void setCellAt(int row, int column, boolean alive) {
+    public void setCellAt(int row, int column, boolean alive) {
         if (!isCoordinateInField(row, column))
             return;
 
@@ -83,8 +82,9 @@ public class GameOfLiveField {
 
     /**
      * Kills al cells in the field except at the given coordinates
+     *
      * @param cellPositions coordinates of cells that should not be killed
-     * @return  coordinates of cells which got killed
+     * @return coordinates of cells which got killed
      */
     public ArrayList<int[]> killAllCellsExceptOf(int[]... cellPositions) {
         ArrayList<int[]> killedCells = new ArrayList<>();
@@ -164,6 +164,7 @@ public class GameOfLiveField {
 
     /**
      * check if cell at given coordinate is alive
+     *
      * @param coordinate of the cell
      * @return whether the cell is alive or dead
      */
@@ -173,11 +174,11 @@ public class GameOfLiveField {
         return field[row][column];
     }
 
-    int getHeight() {
+    public int getHeight() {
         return HEIGHT;
     }
 
-    int getWidth() {
+    public int getWidth() {
         return WIDTH;
     }
 }
