@@ -10,28 +10,28 @@ import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameOfLiveFieldTest {
+public class GameOfLifeFieldTest {
 
     @Test
     void testSetCellAt() {
-        GameOfLiveField gameOfLiveField = new GameOfLiveField(100, 100);
+        GameOfLifeField gameOfLifeField = new GameOfLifeField(100, 100);
 
         // at the beginning every cell in the field is dead (false)
-        for (boolean[] row : gameOfLiveField.getField())
+        for (boolean[] row : gameOfLifeField.getField())
             for (boolean b : row)
                 assertFalse(b);
 
         // pass coordinates that are outside the field
-        gameOfLiveField.setCellAt(-1, 999, true);
+        gameOfLifeField.setCellAt(-1, 999, true);
         // so there is still no cell alive
-        for (boolean[] row : gameOfLiveField.getField())
+        for (boolean[] row : gameOfLifeField.getField())
             for (boolean b : row)
                 assertFalse(b);
 
         // bring cell at row 0 and column 0 to life
-        gameOfLiveField.setCellAt(0, 0, true);
+        gameOfLifeField.setCellAt(0, 0, true);
         // only at row 0 and column 0 there should be a living cell
-        boolean[][] booleanField = gameOfLiveField.getField();
+        boolean[][] booleanField = gameOfLifeField.getField();
         for (int row = 0; row < booleanField.length; row++)
             for (int col = 0; col < booleanField[row].length; col++)
                 if (row == 0 && col == 0)
@@ -40,9 +40,9 @@ public class GameOfLiveFieldTest {
                     assertFalse(booleanField[row][col]);
 
         // bring cell at row 0 and column 0 to life
-        gameOfLiveField.setCellAt(0, 0, false);
+        gameOfLifeField.setCellAt(0, 0, false);
         // so again there is no cell alive
-        for (boolean[] row : gameOfLiveField.getField())
+        for (boolean[] row : gameOfLifeField.getField())
             for (boolean b : row)
                 assertFalse(b);
 
@@ -50,59 +50,59 @@ public class GameOfLiveFieldTest {
 
     @Test
     void testGetAmountLivingNeighbours() {
-        GameOfLiveField gameOfLiveField = new GameOfLiveField(100, 100);
+        GameOfLifeField gameOfLifeField = new GameOfLifeField(100, 100);
         // bring cells to life. It looks like this:
         // ----O- -> cell 1
         // --OO-- -> cell 2 and 3 (from left to right)
         // ------ -> no cells
         // --O--- -> cell 4
-        gameOfLiveField.setCellAt(4, 7, true); // cell 1
-        gameOfLiveField.setCellAt(5, 5, true); // cell 2
-        gameOfLiveField.setCellAt(5, 6, true); // cell 3
-        gameOfLiveField.setCellAt(7, 5, true); // cell 4
+        gameOfLifeField.setCellAt(4, 7, true); // cell 1
+        gameOfLifeField.setCellAt(5, 5, true); // cell 2
+        gameOfLifeField.setCellAt(5, 6, true); // cell 3
+        gameOfLifeField.setCellAt(7, 5, true); // cell 4
 
         // cell 1 has one neighbour (cell 3)
-        assertEquals(1, gameOfLiveField.getAmountLivingNeighbours(4, 7));
+        assertEquals(1, gameOfLifeField.getAmountLivingNeighbours(4, 7));
 
         // cell 2 has one neighbours (cell 3)
-        assertEquals(1, gameOfLiveField.getAmountLivingNeighbours(5, 5));
+        assertEquals(1, gameOfLifeField.getAmountLivingNeighbours(5, 5));
 
         // cell 3 has two neighbours (cell 1 and cell 3)
-        assertEquals(2, gameOfLiveField.getAmountLivingNeighbours(5, 6));
+        assertEquals(2, gameOfLifeField.getAmountLivingNeighbours(5, 6));
 
         // cell 4 has no neighbours
-        assertEquals(0, gameOfLiveField.getAmountLivingNeighbours(7, 5));
+        assertEquals(0, gameOfLifeField.getAmountLivingNeighbours(7, 5));
     }
 
     @Test
     void testIsCoordinateInField() {
         int width = 10;
         int height = 10;
-        GameOfLiveField gameOfLiveField = new GameOfLiveField(height, width);
+        GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
 
         // test coordinates that are outside the field
-        assertFalse(gameOfLiveField.isCoordinateInField(-1, -2));
-        assertFalse(gameOfLiveField.isCoordinateInField(15, 0));
-        assertFalse(gameOfLiveField.isCoordinateInField(0, width));
-        assertFalse(gameOfLiveField.isCoordinateInField(height, 0));
+        assertFalse(gameOfLifeField.isCoordinateInField(-1, -2));
+        assertFalse(gameOfLifeField.isCoordinateInField(15, 0));
+        assertFalse(gameOfLifeField.isCoordinateInField(0, width));
+        assertFalse(gameOfLifeField.isCoordinateInField(height, 0));
 
         // test coordinates that are inside the field
-        assertTrue(gameOfLiveField.isCoordinateInField(0, 0));
-        assertTrue(gameOfLiveField.isCoordinateInField(0, width - 1));
-        assertTrue(gameOfLiveField.isCoordinateInField(height - 1, 0));
-        assertTrue(gameOfLiveField.isCoordinateInField(height - 1, width - 1));
-        assertTrue(gameOfLiveField.isCoordinateInField(7, 5));
+        assertTrue(gameOfLifeField.isCoordinateInField(0, 0));
+        assertTrue(gameOfLifeField.isCoordinateInField(0, width - 1));
+        assertTrue(gameOfLifeField.isCoordinateInField(height - 1, 0));
+        assertTrue(gameOfLifeField.isCoordinateInField(height - 1, width - 1));
+        assertTrue(gameOfLifeField.isCoordinateInField(7, 5));
     }
 
     @Test
     void testLoadNextGeneration() throws FileNotFoundException {
-        GameOfLiveField gameOfLiveField = new GameOfLiveField(100, 100);
+        GameOfLifeField gameOfLifeField = new GameOfLifeField(100, 100);
         // contains the generations, which each have a list of coordinates, which each have a row and a column
         ArrayList<ArrayList<int[]>> generations = getTestCoordinateGeneration();
 
         // bring start cells to live
         for (int[] coordinate : generations.get(0))
-            gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
+            gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);
 
         // go through every generation
         for (ArrayList<int[]> generation : generations) {
@@ -111,13 +111,13 @@ public class GameOfLiveFieldTest {
                 int row = coordinate[0];
                 int column = coordinate[1];
                 // get life status of cell at given coordinate
-                boolean isAlive = gameOfLiveField.getField()[row][column];
+                boolean isAlive = gameOfLifeField.getField()[row][column];
                 // the cells at the given coordinate should be alive
                 assertTrue(isAlive);
             }
 
             // load next generation
-            gameOfLiveField.loadNextGeneration();
+            gameOfLifeField.loadNextGeneration();
         }
     }
 
@@ -125,20 +125,20 @@ public class GameOfLiveFieldTest {
     void testKillAllCells() {
         int width = 10;
         int height = 10;
-        GameOfLiveField gameOfLiveField = new GameOfLiveField(height, width);
+        GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
 
         // no cell is alive, so no cell can be killed
-        assertEquals(0, gameOfLiveField.killAllCells().size());
+        assertEquals(0, gameOfLifeField.killAllCells().size());
 
         // bring cells to life...
         int[][] cellPositions = {{0, 0}, {height - 1, width - 1}, {height - 1, 0}};
         for (int[] coordinate : cellPositions)
-            gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
+            gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);
         // ...and kill them
-        ArrayList<int[]> killedCellsPositions = gameOfLiveField.killAllCells();
+        ArrayList<int[]> killedCellsPositions = gameOfLifeField.killAllCells();
 
         // all cells in the field should be dead
-        for (boolean[] row : gameOfLiveField.getField())
+        for (boolean[] row : gameOfLifeField.getField())
             for (boolean col : row)
                 assertFalse(col);
 
@@ -161,25 +161,25 @@ public class GameOfLiveFieldTest {
     void testKillAllCellsExceptOf() {
         int width = 10;
         int height = 10;
-        GameOfLiveField gameOfLiveField = new GameOfLiveField(height, width);
+        GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
 
         // no cell is alive, so no cell can be killed
-        assertEquals(0, gameOfLiveField.killAllCellsExceptOf().size());
+        assertEquals(0, gameOfLifeField.killAllCellsExceptOf().size());
 
         // bring cells to life...
         int[][] sparedCells = {{0, 0}, {height - 1, width - 1}};
         int[][] cellsToBeKilled = {{5, 5}, {0, width - 1}};
         for (int[] coordinate : sparedCells)
-            gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
+            gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);
         for (int[] coordinate : cellsToBeKilled)
-            gameOfLiveField.setCellAt(coordinate[0], coordinate[1], true);
+            gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);
 
         // ...and kill them except of the spared cells
-        ArrayList<int[]> killedCellsPositions = gameOfLiveField.killAllCellsExceptOf(sparedCells);
+        ArrayList<int[]> killedCellsPositions = gameOfLifeField.killAllCellsExceptOf(sparedCells);
 
         // so all cells of the field except of the spared cells should be dead
-        for (int row = 0; row < gameOfLiveField.getField().length; row++)
-            for (int col = 0; col < gameOfLiveField.getField()[row].length; col++) {
+        for (int row = 0; row < gameOfLifeField.getField().length; row++)
+            for (int col = 0; col < gameOfLifeField.getField()[row].length; col++) {
                 // determine if the current cell is a cell that should have been spared or killed
                 boolean isSparedCellPosition = false;
                 for (int[] sparedCellPos : sparedCells)
@@ -190,9 +190,9 @@ public class GameOfLiveFieldTest {
 
                 // if cell should have been spared, it should be still alive...
                 if (isSparedCellPosition)
-                    assertTrue(gameOfLiveField.getField()[row][col]);
+                    assertTrue(gameOfLifeField.getField()[row][col]);
                 else // ...otherwise it should be dead
-                    assertFalse(gameOfLiveField.getField()[row][col]);
+                    assertFalse(gameOfLifeField.getField()[row][col]);
             }
 
         // the amount of killed cells should be the size of cellsToBeKilled...
@@ -216,20 +216,20 @@ public class GameOfLiveFieldTest {
     void testGetNextRowAndColumn() {
         int width = 10;
         int height = 10;
-        GameOfLiveField gameOfLiveField = new GameOfLiveField(height, width);
+        GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
 
         // the field should behave like a torus, so if the row or column index is outside the field boundaries, return
         // the right row
 
         // row <= -1 => row = height - 1
-        assertEquals(height - 1, gameOfLiveField.getNextTorusRow(-1));
+        assertEquals(height - 1, gameOfLifeField.getNextTorusRow(-1));
         // row >= width => row = 0
-        assertEquals(0, gameOfLiveField.getNextTorusRow(height));
+        assertEquals(0, gameOfLifeField.getNextTorusRow(height));
 
         // column >= -1 => column = width - 1
-        assertEquals(width - 1, gameOfLiveField.getNextTorusColumn(-1));
+        assertEquals(width - 1, gameOfLifeField.getNextTorusColumn(-1));
         // column >= width => column = 0
-        assertEquals(0, gameOfLiveField.getNextTorusColumn(width));
+        assertEquals(0, gameOfLifeField.getNextTorusColumn(width));
     }
 
     // first dimension: generation

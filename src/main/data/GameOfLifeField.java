@@ -3,12 +3,14 @@ package main.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class GameOfLiveField {
+public class GameOfLifeField {
     private final boolean[][] field;
     private final int WIDTH;
     private final int HEIGHT;
 
-    public GameOfLiveField(int height, int width) {
+    private int generationCounter = 1;
+
+    public GameOfLifeField(int height, int width) {
         field = new boolean[height][width];
         WIDTH = width;
         HEIGHT = height;
@@ -26,10 +28,6 @@ public class GameOfLiveField {
             return;
 
         field[row][column] = alive;
-    }
-
-    boolean[][] getField() {
-        return field;
     }
 
     /**
@@ -111,23 +109,6 @@ public class GameOfLiveField {
         return killedCells;
     }
 
-    int getAmountLivingNeighbours(int row, int column) {
-        if (!isCoordinateInField(row, column))
-            return 0;
-
-        int counter = 0;
-        for (int i = row - 1; i <= row + 1; i++)
-            for (int k = column - 1; k <= column + 1; k++) {
-                // adapt coordinates if they are outside the field boundaries
-                int torusRow = getNextTorusRow(i);
-                int torusColumn = getNextTorusColumn(k);
-
-                if ((torusRow != row || torusColumn != column) && field[torusRow][torusColumn])
-                    counter++;
-            }
-        return counter;
-    }
-
     boolean isCoordinateInField(int row, int column) {
         return row >= 0 && row < HEIGHT && column >= 0 && column < WIDTH;
     }
@@ -162,6 +143,23 @@ public class GameOfLiveField {
         return column;
     }
 
+    int getAmountLivingNeighbours(int row, int column) {
+        if (!isCoordinateInField(row, column))
+            return 0;
+
+        int counter = 0;
+        for (int i = row - 1; i <= row + 1; i++)
+            for (int k = column - 1; k <= column + 1; k++) {
+                // adapt coordinates if they are outside the field boundaries
+                int torusRow = getNextTorusRow(i);
+                int torusColumn = getNextTorusColumn(k);
+
+                if ((torusRow != row || torusColumn != column) && field[torusRow][torusColumn])
+                    counter++;
+            }
+        return counter;
+    }
+
     /**
      * check if cell at given coordinate is alive
      *
@@ -174,12 +172,31 @@ public class GameOfLiveField {
         return field[row][column];
     }
 
+    public void incrementGenerationCounter() {
+        generationCounter++;
+    }
+
+    /**
+     * reset the generation counter to 1
+     */
+    public void resetGenerationCounter() {
+        generationCounter = 1;
+    }
+
+    public int getGenerationCounter() {
+        return generationCounter;
+    }
+
     public int getHeight() {
         return HEIGHT;
     }
 
     public int getWidth() {
         return WIDTH;
+    }
+
+    boolean[][] getField() {
+        return field;
     }
 }
 

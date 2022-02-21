@@ -1,22 +1,13 @@
 package main.view;
 
-import main.controll.GameOfLiveController;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class FieldPanel extends JPanel {
+    private JButton[][] jButtons;
 
-    private final GameOfLiveController gameOfLiveController;
-    private final JButton[][] jButtons;
-
-    public FieldPanel(GameOfLiveController gameOfLiveController) {
-        this.gameOfLiveController = gameOfLiveController;
-        int rows = gameOfLiveController.getFieldHeight();
-        int columns = gameOfLiveController.getFieldWidth();
-
+    public void init(int rows, int columns, ActionListener buttonListener) {
         this.setLayout(new GridLayout(rows, columns));
 
         jButtons = new JButton[rows][columns];
@@ -26,7 +17,7 @@ public class FieldPanel extends JPanel {
                 btn.setFocusable(false);
                 btn.setBackground(Color.WHITE);
                 btn.setActionCommand(createActionCommandString(row, col, false));
-                btn.addActionListener(new ButtonListener());
+                btn.addActionListener(buttonListener);
                 this.add(btn);
                 jButtons[row][col] = btn;
             }
@@ -47,7 +38,7 @@ public class FieldPanel extends JPanel {
     /**
      * toggle the life status of the button and the color at the given row and column
      *
-     * @param row of button which should be toggled
+     * @param row    of button which should be toggled
      * @param column of button which should be toggled
      */
     public void toggleButton(int row, int column) {
@@ -66,20 +57,5 @@ public class FieldPanel extends JPanel {
 
     private String createActionCommandString(int row, int column, boolean alive) {
         return (alive ? "alive" : "dead") + "," + row + "," + column;
-    }
-
-    class ButtonListener implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() instanceof JButton btn) {
-                boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
-                int row = Integer.parseInt(btn.getActionCommand().split(",")[1]);
-                int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
-
-                toggleButton(row, column);
-                gameOfLiveController.setCellAt(row, column, !alive);
-            }
-        }
     }
 }

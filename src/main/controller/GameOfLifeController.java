@@ -1,24 +1,39 @@
-package main.controll;
+package main.controller;
 
-import main.data.GameOfLiveField;
+import main.data.GameOfLifeField;
+import main.view.FieldPanel;
+import main.view.MainFrame;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class GameOfLiveController {
-    private final GameOfLiveField gameOfLiveField;
+public class GameOfLifeController {
+    private final GameOfLifeField gameOfLifeField;
+    private final MainFrame mainFrame;
+    private final FieldPanel fieldPanel;
+    // TODO private final ControlPanel controlPanel;
+
     private int delay = 1000;
     private final Timer timer;
 
-    private int generationCounter = 1;
 
     // contains the positions of the cells in the first generation
     private final ArrayList<int[]> firstGenCellPositions = new ArrayList<>();
 
-    public GameOfLiveController(int fieldHeight, int fieldWidth, ActionListener timerListener) {
-        this.gameOfLiveField = new GameOfLiveField(fieldHeight, fieldWidth);
-        this.timer = new Timer(delay, timerListener);
+    public GameOfLifeController(GameOfLifeField field, MainFrame frame) {
+        this.gameOfLifeField = field;
+        this.mainFrame = frame;
+        this.fieldPanel = frame.getFieldPanel();
+        //TODO this.controlPanel = frame.getControlPanel();
+
+        // init ui with values from gameOfLifeField and actionListener
+        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), new ButtonListener());
+        frame.setVisible(true);
+
+        // initialize timer
+        this.timer = new Timer(delay, new TimerListener());
         timer.setInitialDelay(50);
     }
 
@@ -28,8 +43,8 @@ public class GameOfLiveController {
      * @return coordinates of cells which got a new life status
      */
     public ArrayList<int[]> loadNextGeneration() {
-        generationCounter++;
-        return gameOfLiveField.loadNextGeneration();
+        gameOfLifeField.incrementGenerationCounter();
+        return gameOfLifeField.loadNextGeneration();
     }
 
     /**
@@ -40,11 +55,11 @@ public class GameOfLiveController {
      * @param alive  whether the cell should be alive or dead
      */
     public void setCellAt(int row, int column, boolean alive) {
-        gameOfLiveField.setCellAt(row, column, alive);
+        gameOfLifeField.setCellAt(row, column, alive);
 
         // if it is the first generation, the positions of the living cells
         // needs to be updated in the firstGenCellPositions list. Otherwise, return.
-        if (generationCounter != 1)
+        if (gameOfLifeField.getGenerationCounter() != 1)
             return;
 
         // if a cell is brought to life, add it to firstGenCellPositions
@@ -99,15 +114,15 @@ public class GameOfLiveController {
             startPositionsArray[row] = firstGenCellPositions.get(row);
 
         // kill all cells in the field except the cell(s) from the first generation (in startCellPositions)
-        ArrayList<int[]> toggledCells = gameOfLiveField.killAllCellsExceptOf(startPositionsArray);
+        ArrayList<int[]> toggledCells = gameOfLifeField.killAllCellsExceptOf(startPositionsArray);
 
         // if a cell from the first generation is dead, bring it back to life
         for (int[] coordinate : firstGenCellPositions)
-            if (!gameOfLiveField.isCellAliveAt(coordinate)) {
+            if (!gameOfLifeField.isCellAliveAt(coordinate)) {
                 setCellAt(coordinate[0], coordinate[1], true);
                 toggledCells.add(coordinate);
             }
-        generationCounter = 1;
+        gameOfLifeField.resetGenerationCounter();
 
         return toggledCells;
     }
@@ -119,7 +134,7 @@ public class GameOfLiveController {
      */
     public ArrayList<int[]> killAllCells() {
         firstGenCellPositions.clear();
-        return gameOfLiveField.killAllCells();
+        return gameOfLifeField.killAllCells();
     }
 
     public boolean isGameOfLiveRunning() {
@@ -140,15 +155,27 @@ public class GameOfLiveController {
         this.timer.setDelay(delay);
     }
 
-    public int getGenerationCounter() {
-        return generationCounter;
+    class TimerListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            for (int[] coordinate : loadNextGeneration())
+                fieldPanel.toggleButton(coordinate);
+
+            // TODO controlPanel.updateGenerationTextLabel(gameOfLifeField.getGenerationCounter());
+        }
     }
 
-    public int getFieldHeight() {
-        return gameOfLiveField.getHeight();
-    }
+    class ButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() instanceof JButton btn) {
+                boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
+                int row = Integer.parseInt(btn.getActionCommand().split(",")[1]);
+                int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
 
-    public int getFieldWidth() {
-        return gameOfLiveField.getWidth();
+                fieldPanel.toggleButton(row, column);
+                gameOfLifeField.setCellAt(row, column, !alive);
+            }
+        }
     }
 }
