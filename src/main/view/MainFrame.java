@@ -5,7 +5,7 @@ import java.awt.*;
 
 public class MainFrame extends JFrame {
     private final FieldPanel fieldPanel;
-    // TODO private final ControlPanel controlPanel;
+    private final ControlPanel controlPanel;
 
     public MainFrame() {
         this.setLayout(new BorderLayout());
@@ -14,7 +14,7 @@ public class MainFrame extends JFrame {
         this.add(fieldPanel = new FieldPanel(), BorderLayout.CENTER);
 
         // add ControlPanel, which is for adjusting settings of the game of life
-        // TODO this.add(controlPanel = new ControlPanel(), BorderLayout.NORTH);
+        this.add(controlPanel = new ControlPanel(), BorderLayout.NORTH);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(750, 750);
@@ -25,9 +25,8 @@ public class MainFrame extends JFrame {
         return fieldPanel;
     }
 
-    // TODO
-//    public ControlPanel getControlPanel() {
-//        return controlPanel;
-//    }
+    public ControlPanel getControlPanel() {
+        return controlPanel;
+    }
 
 }

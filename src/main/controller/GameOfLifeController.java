@@ -1,6 +1,7 @@
 package main.controller;
 
 import main.data.GameOfLifeField;
+import main.view.ControlPanel;
 import main.view.FieldPanel;
 import main.view.MainFrame;
 
@@ -13,7 +14,7 @@ public class GameOfLifeController {
     private final GameOfLifeField gameOfLifeField;
     private final MainFrame mainFrame;
     private final FieldPanel fieldPanel;
-    // TODO private final ControlPanel controlPanel;
+    private final ControlPanel controlPanel;
 
     private int delay = 1000;
     private final Timer timer;
@@ -26,15 +27,68 @@ public class GameOfLifeController {
         this.gameOfLifeField = field;
         this.mainFrame = frame;
         this.fieldPanel = frame.getFieldPanel();
-        //TODO this.controlPanel = frame.getControlPanel();
+        this.controlPanel = frame.getControlPanel();
 
-        // init ui with values from gameOfLifeField and actionListener
-        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), new ButtonListener());
-        frame.setVisible(true);
+        // init ui with values from gameOfLifeField and add actionListener
+        init();
 
         // initialize timer
         this.timer = new Timer(delay, new TimerListener());
         timer.setInitialDelay(50);
+    }
+
+    private void init() {
+        // --- initialize fieldPanel with values from gameOfLifeField and pass ButtonActionListener
+        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), new ButtonListener());
+
+        // --- set ActionListener of ControlPanel
+        // start/restart button
+        JButton restartBtn = controlPanel.getStartRestartBtn();
+        restartBtn.addActionListener((e) -> {
+            if (isGameOfLiveRunning()) {
+                stopGameOfLive();
+                restartBtn.setText("Start");
+            } else {
+                startGameOfLive();
+                restartBtn.setText("Stop");
+            }
+        });
+
+        // jump button
+        controlPanel.getJumpButton().addActionListener((e) -> triggerNextGeneration());
+
+        // reset/clear button
+        JButton resetClearButton = controlPanel.getResetClearBtn();
+        resetClearButton.addActionListener((e) -> {
+            // if the current generation is not the first generation...
+            if (gameOfLifeField.getGenerationCounter() > 1) {
+                //... reset to the first generation and update fieldPanel...
+                for (int[] coordinate : resetToFirstGeneration())
+                    fieldPanel.toggleButton(coordinate);
+
+                // update text of resetClearButton because now its functionality is to clear the field
+                resetClearButton.setText("Clear");
+                // update generationTextLabel
+                updateGenerationCounterText();
+            } else {
+                // ...otherwise kill all cells to clear the field
+                for (int[] coordinate : killAllCells())
+                    fieldPanel.toggleButton(coordinate);
+            }
+        });
+
+        // delay slider
+        JSlider slider = controlPanel.getDelaySlider();
+        slider.addChangeListener((e) -> {
+            int currentSpeed = delay;
+            int currentValue = slider.getValue();
+            // only change speed when the slider has a final result
+            // or if the difference between current slider value and speed is greater than 3
+            if (slider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
+                setDelay((slider.getMaximum() - currentValue) * 100);
+        });
+
+        mainFrame.setVisible(true);
     }
 
     /**
@@ -141,10 +195,6 @@ public class GameOfLifeController {
         return timer.isRunning();
     }
 
-    public int getDelay() {
-        return delay;
-    }
-
     /**
      * sets the delay between each Generation
      *
@@ -155,13 +205,20 @@ public class GameOfLifeController {
         this.timer.setDelay(delay);
     }
 
+    /**
+     * updates the text of the generationTextLabel to the current generation counter
+     */
+    public void updateGenerationCounterText() {
+        controlPanel.getGenerationTextLabel().setText("Generation: " + gameOfLifeField.getGenerationCounter());
+    }
+
     class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             for (int[] coordinate : loadNextGeneration())
                 fieldPanel.toggleButton(coordinate);
-
-            // TODO controlPanel.updateGenerationTextLabel(gameOfLifeField.getGenerationCounter());
+            updateGenerationCounterText();
+            controlPanel.getResetClearBtn().setText("Reset");
         }
     }
 
@@ -174,7 +231,7 @@ public class GameOfLifeController {
                 int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
 
                 fieldPanel.toggleButton(row, column);
-                gameOfLifeField.setCellAt(row, column, !alive);
+                setCellAt(row, column, !alive);
             }
         }
     }
