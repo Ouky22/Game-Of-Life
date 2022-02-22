@@ -10,6 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+/**
+ * Mediator between the logic and the UI
+ */
 public class GameOfLifeController {
     private final GameOfLifeField gameOfLifeField;
     private final MainFrame mainFrame;
@@ -19,9 +22,9 @@ public class GameOfLifeController {
     private int delay = 1000;
     private final Timer timer;
 
-
     // contains the positions of the cells in the first generation
     private final ArrayList<int[]> firstGenCellPositions = new ArrayList<>();
+
 
     public GameOfLifeController(GameOfLifeField field, MainFrame frame) {
         this.gameOfLifeField = field;
@@ -39,7 +42,7 @@ public class GameOfLifeController {
 
     private void init() {
         // --- initialize fieldPanel with values from gameOfLifeField and pass ButtonActionListener
-        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), new ButtonListener());
+        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), new FieldButtonListener());
 
         // --- set ActionListener of ControlPanel
         // start/restart button
@@ -91,10 +94,11 @@ public class GameOfLifeController {
         mainFrame.setVisible(true);
     }
 
+
     /**
-     * loads the next generation of the game of life
+     * Loads the next generation of the game of life and increments the generation counter
      *
-     * @return coordinates of cells which got a new life status
+     * @return coordinates of cells which got a new life state
      */
     public ArrayList<int[]> loadNextGeneration() {
         gameOfLifeField.incrementGenerationCounter();
@@ -102,7 +106,8 @@ public class GameOfLifeController {
     }
 
     /**
-     * set one cell in the gameOfLive field at the given row and column alive or not alive
+     * Set one cell alive or not alive in the gameOfLive field at the given row and column.
+     * If it is the first generation, the list containing the cell positions from the first generation will be updated.
      *
      * @param row    row of the cell
      * @param column column of the cell
@@ -130,17 +135,23 @@ public class GameOfLifeController {
             }
     }
 
+    /**
+     * Starts the timer so that it is firing events periodically with the given delay causing to load the next generation
+     */
     public void startGameOfLive() {
         timer.setRepeats(true);
         timer.restart();
     }
 
+    /**
+     * Stopps the timer so that it does not fire events causing to load the next generation
+     */
     public void stopGameOfLive() {
         timer.stop();
     }
 
     /**
-     * trigger timer so the next generation will be generated and drawn.
+     * Triggers timer so the next generation will be generated and drawn.
      * If the timer is running before this method call, it will continue afterwards.
      * If the timer is not running before this method call,
      * it will only trigger the timer once and then stops again.
@@ -159,7 +170,7 @@ public class GameOfLifeController {
      * Kills all cells in the field except the cells from the first generation.
      * If cells from the first generation are dead, they are brought back to live.
      *
-     * @return coordinates of cells which got a new life status (deed or alive)
+     * @return coordinates of cells which got a new life state (deed or alive)
      */
     public ArrayList<int[]> resetToFirstGeneration() {
         // convert the startCellPositions list to array
@@ -196,7 +207,7 @@ public class GameOfLifeController {
     }
 
     /**
-     * sets the delay between each Generation
+     * Sets the delay between each Generation
      *
      * @param delay in milliseconds
      */
@@ -206,12 +217,15 @@ public class GameOfLifeController {
     }
 
     /**
-     * updates the text of the generationTextLabel to the current generation counter
+     * Updates the text of the generationTextLabel to the current generation counter
      */
     public void updateGenerationCounterText() {
         controlPanel.getGenerationTextLabel().setText("Generation: " + gameOfLifeField.getGenerationCounter());
     }
 
+    /**
+     * ActionListener, which executes all the necessary steps for loading the next generation if the timer fires an event
+     */
     class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -222,7 +236,11 @@ public class GameOfLifeController {
         }
     }
 
-    class ButtonListener implements ActionListener {
+    /**
+     * ActionListener, which executes all the necessary steps for toggling the life state of a cell selected
+     * by a click on the corresponding button in the fieldPanel
+     */
+    class FieldButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() instanceof JButton btn) {

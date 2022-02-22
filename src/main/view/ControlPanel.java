@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Hashtable;
 
+/**
+ * A JPanel which has widgets for controlling the game of life (e.g. start or stop the game via buttons)
+ */
 public class ControlPanel extends JPanel {
 
     private final JButton startRestartBtn;

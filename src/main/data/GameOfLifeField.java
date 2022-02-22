@@ -3,6 +3,9 @@ package main.data;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Contains the logic and data for the game of life
+ */
 public class GameOfLifeField {
     private final boolean[][] field;
     private final int WIDTH;
@@ -17,7 +20,7 @@ public class GameOfLifeField {
     }
 
     /**
-     * set one cell in the field at the given row and column alive or not alive
+     * Set one cell alive or not alive at the given row and column in the field
      *
      * @param row    row of the cell
      * @param column column of the cell
@@ -31,12 +34,12 @@ public class GameOfLifeField {
     }
 
     /**
-     * loads the next generation of cells.
+     * Loads the next generation of the game of life.
      *
-     * @return all cells that got a new life status (so the life status got toggled)
+     * @return all cells that got a new life state (so the life state got toggled)
      */
     public ArrayList<int[]> loadNextGeneration() {
-        // add coordinates of cells with a new life status
+        // add coordinates of cells with a new life state
         ArrayList<int[]> toggledCells = new ArrayList<>();
 
         // apply rules of game of live
@@ -51,7 +54,7 @@ public class GameOfLifeField {
                     toggledCells.add(new int[]{row, col});
             }
 
-        // change status of cells in field
+        // change state of cells in field
         for (int[] coordinate : toggledCells)
             field[coordinate[0]][coordinate[1]] = !field[coordinate[0]][coordinate[1]];
 
@@ -114,7 +117,7 @@ public class GameOfLifeField {
     }
 
     /**
-     * return row, which is next to the given row, if given row is outside the field boundaries.
+     * Return row, which is next to the given row, if given row is outside the field boundaries.
      * If the given row is inside the field boundaries, the given row will be returned.
      *
      * @param row given row, which could be outside the field boundaries
@@ -129,7 +132,7 @@ public class GameOfLifeField {
     }
 
     /**
-     * return column, which is next to the given column, if given column is outside the field boundaries.
+     * Return column, which is next to the given column, if given column is outside the field boundaries.
      * If the given column is inside the field boundaries, the given column will be returned.
      *
      * @param column given column, which could be outside the field boundaries
@@ -161,7 +164,7 @@ public class GameOfLifeField {
     }
 
     /**
-     * check if cell at given coordinate is alive
+     * Check if cell at given coordinate is alive
      *
      * @param coordinate of the cell
      * @return whether the cell is alive or dead
@@ -177,7 +180,7 @@ public class GameOfLifeField {
     }
 
     /**
-     * reset the generation counter to 1
+     * Reset the generation counter to 1
      */
     public void resetGenerationCounter() {
         generationCounter = 1;

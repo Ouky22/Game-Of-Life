@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
+/**
+ * A JPanel which can display all the cells of the game of life in a grid field
+ */
 public class FieldPanel extends JPanel {
     private JButton[][] jButtons;
 
@@ -25,9 +28,10 @@ public class FieldPanel extends JPanel {
     }
 
     /**
-     * toggle the life status of the button and the color at the given coordinate (row, column)
+     * Toggle the color indicating the life state of the corresponding cell of the button
+     * at the given coordinate (row, column)
      *
-     * @param coordinate of button which should be toggled
+     * @param coordinate of button which should be toggled (row, column)
      */
     public void toggleButton(int[] coordinate) {
         int row = coordinate[0];
@@ -36,7 +40,8 @@ public class FieldPanel extends JPanel {
     }
 
     /**
-     * toggle the life status of the button and the color at the given row and column
+     * Toggle the color indicating the life state of the corresponding cell of the button
+     * at the given row and column
      *
      * @param row    of button which should be toggled
      * @param column of button which should be toggled
@@ -51,7 +56,7 @@ public class FieldPanel extends JPanel {
         else // cell becomes alive
             btn.setBackground(Color.RED);
 
-        // toggle life status in actionCommand of button
+        // toggle life state in actionCommand of button
         btn.setActionCommand(createActionCommandString(row, column, !alive));
     }
 

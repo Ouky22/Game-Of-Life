@@ -3,6 +3,9 @@ package main.view;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * JFrame which contains all elements for the graphical representation of the game of life
+ */
 public class MainFrame extends JFrame {
     private final FieldPanel fieldPanel;
     private final ControlPanel controlPanel;
