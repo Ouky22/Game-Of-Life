@@ -9,7 +9,7 @@ import java.util.Hashtable;
 /**
  * A JPanel which has widgets for controlling the game of life (e.g. start or stop the game via buttons)
  */
-public class ControlPanel extends JPanel {
+public class ControlPanel extends JPanel implements Observer{
 
     private final JButton startRestartBtn;
     private final JButton resetClearBtn;
@@ -89,6 +89,11 @@ public class ControlPanel extends JPanel {
 
     public void addDelaySliderChangeListener(ChangeListener a) {
         delaySlider.addChangeListener(a);
+    }
+
+    @Override
+    public void update() {
+        // TODO
     }
 }
 

@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 /**
  * A JPanel which can display all the cells of the game of life in a grid field
  */
-public class FieldPanel extends JPanel {
+public class FieldPanel extends JPanel implements Observer{
     private JButton[][] jButtons;
 
 
@@ -69,5 +69,10 @@ public class FieldPanel extends JPanel {
 
     private String createActionCommandString(int row, int column, boolean alive) {
         return (alive ? "alive" : "dead") + "," + row + "," + column;
+    }
+
+    @Override
+    public void update() {
+        // TODO
     }
 }

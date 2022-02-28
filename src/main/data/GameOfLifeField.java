@@ -1,17 +1,22 @@
 package main.data;
 
+import main.view.Observer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Contains the logic and data for the game of life
  */
-public class GameOfLifeField {
+public class GameOfLifeField implements Observable {
     private final boolean[][] field;
     private final int WIDTH;
     private final int HEIGHT;
 
     private int generationCounter = 1;
+
+    private final List<Observer> observers = new ArrayList<>();
 
     public GameOfLifeField(int height, int width) {
         field = new boolean[height][width];
@@ -200,6 +205,22 @@ public class GameOfLifeField {
 
     boolean[][] getField() {
         return field;
+    }
+
+    @Override
+    public void register(Observer observer) {
+        this.observers.add(observer);
+    }
+
+    @Override
+    public void unregister(Observer observer) {
+        this.observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (Observer o : observers)
+            o.update();
     }
 }
 
