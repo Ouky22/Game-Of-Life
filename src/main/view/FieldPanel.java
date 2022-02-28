@@ -10,6 +10,13 @@ import java.awt.event.ActionListener;
 public class FieldPanel extends JPanel {
     private JButton[][] jButtons;
 
+
+    /**
+     * initialize the FieldPanel
+     * @param rows The amount of rows
+     * @param columns The amount of columns
+     * @param buttonListener The ActionListener for the buttons in the field
+     */
     public void init(int rows, int columns, ActionListener buttonListener) {
         this.setLayout(new GridLayout(rows, columns));
 

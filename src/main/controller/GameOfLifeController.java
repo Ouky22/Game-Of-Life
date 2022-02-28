@@ -41,8 +41,17 @@ public class GameOfLifeController {
     }
 
     private void init() {
-        // --- initialize fieldPanel with values from gameOfLifeField and pass ButtonActionListener
-        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), new FieldButtonListener());
+        // --- initialize fieldPanel with values from gameOfLifeField and pass ActionListener for buttons
+        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), (e) -> {
+            if (e.getSource() instanceof JButton btn) {
+                boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
+                int row = Integer.parseInt(btn.getActionCommand().split(",")[1]);
+                int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
+
+                fieldPanel.toggleButton(row, column);
+                setCellAt(row, column, !alive);
+            }
+        });
 
         // --- set ActionListener of ControlPanel
         // start/restart button
@@ -235,24 +244,6 @@ public class GameOfLifeController {
             updateGenerationCounterText();
 
             controlPanel.setResetClearBtnText("Reset");
-        }
-    }
-
-    /**
-     * ActionListener, which executes all the necessary steps for toggling the life state of a cell selected
-     * by a click on the corresponding button in the fieldPanel
-     */
-    class FieldButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() instanceof JButton btn) {
-                boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
-                int row = Integer.parseInt(btn.getActionCommand().split(",")[1]);
-                int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
-
-                fieldPanel.toggleButton(row, column);
-                setCellAt(row, column, !alive);
-            }
         }
     }
 }
