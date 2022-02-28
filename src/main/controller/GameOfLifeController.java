@@ -1,6 +1,6 @@
 package main.controller;
 
-import main.data.GameOfLifeField;
+import main.model.GameOfLifeField;
 import main.view.ControlPanel;
 import main.view.FieldPanel;
 import main.view.MainFrame;
@@ -42,13 +42,11 @@ public class GameOfLifeController {
 
     private void init() {
         // --- initialize fieldPanel with values from gameOfLifeField and pass ActionListener for buttons
-        fieldPanel.init(gameOfLifeField.getHeight(), gameOfLifeField.getWidth(), (e) -> {
+        fieldPanel.addButtonActionListener((e) -> {
             if (e.getSource() instanceof JButton btn) {
                 boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
                 int row = Integer.parseInt(btn.getActionCommand().split(",")[1]);
                 int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
-
-                fieldPanel.toggleButton(row, column);
                 setCellAt(row, column, !alive);
             }
         });
@@ -74,18 +72,14 @@ public class GameOfLifeController {
             if (e.getSource() instanceof JButton resetClearButton)
                 // if the current generation is not the first generation...
                 if (gameOfLifeField.getGenerationCounter() > 1) {
-                    //... reset to the first generation and update fieldPanel...
-                    for (int[] coordinate : resetToFirstGeneration())
-                        fieldPanel.toggleButton(coordinate);
-
+                    //... reset to the first generation
+                    resetToFirstGeneration();
                     // update text of resetClearButton because now its functionality is to clear the field
                     resetClearButton.setText("Clear");
                     // update generationTextLabel
-                    updateGenerationCounterText();
                 } else {
                     // ...otherwise kill all cells to clear the field
-                    for (int[] coordinate : killAllCells())
-                        fieldPanel.toggleButton(coordinate);
+                    killAllCells();
                 }
         });
 
@@ -107,12 +101,10 @@ public class GameOfLifeController {
 
     /**
      * Loads the next generation of the game of life and increments the generation counter
-     *
-     * @return coordinates of cells which got a new life state
      */
-    public ArrayList<int[]> loadNextGeneration() {
+    public void loadNextGeneration() {
         gameOfLifeField.incrementGenerationCounter();
-        return gameOfLifeField.loadNextGeneration();
+        gameOfLifeField.loadNextGeneration();
     }
 
     /**
@@ -179,37 +171,30 @@ public class GameOfLifeController {
     /**
      * Kills all cells in the field except the cells from the first generation.
      * If cells from the first generation are dead, they are brought back to live.
-     *
-     * @return coordinates of cells which got a new life state (deed or alive)
      */
-    public ArrayList<int[]> resetToFirstGeneration() {
+    public void resetToFirstGeneration() {
         // convert the startCellPositions list to array
         int[][] startPositionsArray = new int[firstGenCellPositions.size()][2];
         for (int row = 0; row < firstGenCellPositions.size(); row++)
             startPositionsArray[row] = firstGenCellPositions.get(row);
 
         // kill all cells in the field except the cell(s) from the first generation (in startCellPositions)
-        ArrayList<int[]> toggledCells = gameOfLifeField.killAllCellsExceptOf(startPositionsArray);
+        gameOfLifeField.killAllCellsExceptOf(startPositionsArray);
 
         // if a cell from the first generation is dead, bring it back to life
         for (int[] coordinate : firstGenCellPositions)
             if (!gameOfLifeField.isCellAliveAt(coordinate)) {
                 setCellAt(coordinate[0], coordinate[1], true);
-                toggledCells.add(coordinate);
             }
         gameOfLifeField.resetGenerationCounter();
-
-        return toggledCells;
     }
 
     /**
-     * Kills all cells in the field
-     *
-     * @return coordinates of cells which got killed
+     * Kills all cells in the field.
      */
-    public ArrayList<int[]> killAllCells() {
+    public void killAllCells() {
         firstGenCellPositions.clear();
-        return gameOfLifeField.killAllCells();
+        gameOfLifeField.killAllCells();
     }
 
     public boolean isGameOfLiveRunning() {
@@ -227,22 +212,12 @@ public class GameOfLifeController {
     }
 
     /**
-     * Updates the text of the generationTextLabel to the current generation counter
-     */
-    public void updateGenerationCounterText() {
-        controlPanel.setGenerationTextLabel(gameOfLifeField.getGenerationCounter());
-    }
-
-    /**
      * ActionListener, which executes all the necessary steps for loading the next generation if the timer fires an event
      */
     class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            for (int[] coordinate : loadNextGeneration())
-                fieldPanel.toggleButton(coordinate);
-            updateGenerationCounterText();
-
+            loadNextGeneration();
             controlPanel.setResetClearBtnText("Reset");
         }
     }
