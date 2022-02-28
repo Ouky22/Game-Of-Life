@@ -1,5 +1,7 @@
 package main.view;
 
+import main.model.GameOfLifeField;
+
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -9,7 +11,7 @@ import java.util.Hashtable;
 /**
  * A JPanel which has widgets for controlling the game of life (e.g. start or stop the game via buttons)
  */
-public class ControlPanel extends JPanel implements Observer{
+public class ControlPanel extends JPanel implements Observer {
 
     private final JButton startRestartBtn;
     private final JButton resetClearBtn;
@@ -17,9 +19,13 @@ public class ControlPanel extends JPanel implements Observer{
     private final JSlider delaySlider;
     private final JLabel generationTextLabel;
 
-    public ControlPanel() {
-        this.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15));
+    private final GameOfLifeField gameOfLifeField;
 
+    public ControlPanel(GameOfLifeField gameOfLifeField) {
+        this.gameOfLifeField = gameOfLifeField;
+        gameOfLifeField.register(this);
+
+        this.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15));
         Dimension buttonDimension = new Dimension(25, 50);
 
         // add start/restart button to panel
@@ -62,14 +68,10 @@ public class ControlPanel extends JPanel implements Observer{
         this.add(generationTextLabel);
     }
 
+
     public void setResetClearBtnText(String text) {
         resetClearBtn.setText(text);
     }
-
-    public void setGenerationTextLabel(int generationCounter) {
-        generationTextLabel.setText("Generation: " + generationCounter);
-    }
-
 
     /**
      * methods for adding ActionListener to ui elements
@@ -93,7 +95,7 @@ public class ControlPanel extends JPanel implements Observer{
 
     @Override
     public void update() {
-        // TODO
+        generationTextLabel.setText("Generation: " + gameOfLifeField.getGenerationCounter());
     }
 }
 

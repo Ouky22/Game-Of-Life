@@ -1,23 +1,26 @@
 package main.view;
 
+import main.model.GameOfLifeField;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
 /**
  * A JPanel which can display all the cells of the game of life in a grid field
+ * consisting of JButtons which represent cells.
  */
-public class FieldPanel extends JPanel implements Observer{
-    private JButton[][] jButtons;
+public class FieldPanel extends JPanel implements Observer {
+    private final JButton[][] jButtons;
+    private final GameOfLifeField gameOfLifeField;
 
+    public FieldPanel(GameOfLifeField gameOfLifeField) {
+        this.gameOfLifeField = gameOfLifeField;
+        gameOfLifeField.register(this);
 
-    /**
-     * initialize the FieldPanel
-     * @param rows The amount of rows
-     * @param columns The amount of columns
-     * @param buttonListener The ActionListener for the buttons in the field
-     */
-    public void init(int rows, int columns, ActionListener buttonListener) {
+        int rows = gameOfLifeField.getHeight();
+        int columns = gameOfLifeField.getWidth();
+
         this.setLayout(new GridLayout(rows, columns));
 
         jButtons = new JButton[rows][columns];
@@ -27,11 +30,21 @@ public class FieldPanel extends JPanel implements Observer{
                 btn.setFocusable(false);
                 btn.setBackground(Color.WHITE);
                 btn.setActionCommand(createActionCommandString(row, col, false));
-                btn.addActionListener(buttonListener);
                 this.add(btn);
                 jButtons[row][col] = btn;
             }
         }
+    }
+
+    /**
+     * add ActionListener to every button in the field. Every Button is a representation of a cell.
+     *
+     * @param buttonListener ActionListener to be added
+     */
+    public void addButtonActionListener(ActionListener buttonListener) {
+        for (JButton[] buttonRow : jButtons)
+            for (JButton button : buttonRow)
+                button.addActionListener(buttonListener);
     }
 
     /**
@@ -40,7 +53,7 @@ public class FieldPanel extends JPanel implements Observer{
      *
      * @param coordinate of button which should be toggled (row, column)
      */
-    public void toggleButton(int[] coordinate) {
+    private void toggleButton(int[] coordinate) {
         int row = coordinate[0];
         int column = coordinate[1];
         toggleButton(row, column);
@@ -53,7 +66,7 @@ public class FieldPanel extends JPanel implements Observer{
      * @param row    of button which should be toggled
      * @param column of button which should be toggled
      */
-    public void toggleButton(int row, int column) {
+    private void toggleButton(int row, int column) {
         JButton btn = jButtons[row][column];
         boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
 
@@ -73,6 +86,8 @@ public class FieldPanel extends JPanel implements Observer{
 
     @Override
     public void update() {
-        // TODO
+        // get the positions of the cells which got a new life state and update field panel
+        for (int[] position : gameOfLifeField.clearCellsToBeUpdated())
+            toggleButton(position);
     }
 }
