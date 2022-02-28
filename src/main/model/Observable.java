@@ -1,4 +1,4 @@
-package main.data;
+package main.model;
 
 import main.view.Observer;
 

@@ -1,4 +1,4 @@
-package main.data;
+package main.model;
 
 import org.junit.jupiter.api.Test;
 
@@ -127,34 +127,17 @@ public class GameOfLifeFieldTest {
         int height = 10;
         GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
 
-        // no cell is alive, so no cell can be killed
-        assertEquals(0, gameOfLifeField.killAllCells().size());
-
         // bring cells to life...
         int[][] cellPositions = {{0, 0}, {height - 1, width - 1}, {height - 1, 0}};
         for (int[] coordinate : cellPositions)
             gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);
         // ...and kill them
-        ArrayList<int[]> killedCellsPositions = gameOfLifeField.killAllCells();
+        gameOfLifeField.killAllCells();
 
         // all cells in the field should be dead
         for (boolean[] row : gameOfLifeField.getField())
             for (boolean col : row)
                 assertFalse(col);
-
-        // so the amount of the killed cells equals the amount of cells that were brought to life
-        assertEquals(cellPositions.length, killedCellsPositions.size());
-
-        // ...and the positions of the killed cells should match the positions of the cells brought to life
-        for (int[] cellPosition : cellPositions) {
-            boolean containsCellPosition = false;
-            for (int[] killedCellPosition : killedCellsPositions)
-                if (Arrays.equals(cellPosition, killedCellPosition)) {
-                    containsCellPosition = true;
-                    break;
-                }
-            assertTrue(containsCellPosition);
-        }
     }
 
     @Test
@@ -162,9 +145,6 @@ public class GameOfLifeFieldTest {
         int width = 10;
         int height = 10;
         GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
-
-        // no cell is alive, so no cell can be killed
-        assertEquals(0, gameOfLifeField.killAllCellsExceptOf().size());
 
         // bring cells to life...
         int[][] sparedCells = {{0, 0}, {height - 1, width - 1}};
@@ -175,7 +155,7 @@ public class GameOfLifeFieldTest {
             gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);
 
         // ...and kill them except of the spared cells
-        ArrayList<int[]> killedCellsPositions = gameOfLifeField.killAllCellsExceptOf(sparedCells);
+        gameOfLifeField.killAllCellsExceptOf(sparedCells);
 
         // so all cells of the field except of the spared cells should be dead
         for (int row = 0; row < gameOfLifeField.getField().length; row++)
@@ -194,21 +174,6 @@ public class GameOfLifeFieldTest {
                 else // ...otherwise it should be dead
                     assertFalse(gameOfLifeField.getField()[row][col]);
             }
-
-        // the amount of killed cells should be the size of cellsToBeKilled...
-        assertEquals(cellsToBeKilled.length, killedCellsPositions.size());
-
-        // ...and the positions of the killed cells should match the positions of cellsToBeKilled
-        for (int[] cellToBeKilledPos : cellsToBeKilled) {
-            boolean containsCellPosition = false;
-            for (int[] killedCellPos : killedCellsPositions) {
-                if (Arrays.equals(cellToBeKilledPos, killedCellPos)) {
-                    containsCellPosition = true;
-                    break;
-                }
-            }
-            assertTrue(containsCellPosition);
-        }
     }
 
 

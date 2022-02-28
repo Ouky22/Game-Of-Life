@@ -1,4 +1,4 @@
-package main.data;
+package main.model;
 
 import main.view.Observer;
 
@@ -18,14 +18,23 @@ public class GameOfLifeField implements Observable {
 
     private final List<Observer> observers = new ArrayList<>();
 
+    /**
+     * List which contains the positions of cells that have a new life state.
+     * This list is passed to the observers for them to update their view.
+     * After that this list will be emptied.
+     */
+    final ArrayList<int[]> cellsToBeUpdated = new ArrayList<>();
+
     public GameOfLifeField(int height, int width) {
         field = new boolean[height][width];
         WIDTH = width;
         HEIGHT = height;
     }
 
+
     /**
-     * Set one cell alive or not alive at the given row and column in the field
+     * Set one cell alive or not alive at the given row and column in the field.
+     * It will notify the observers and pass them the position of the cell whose life state changed.
      *
      * @param row    row of the cell
      * @param column column of the cell
@@ -36,14 +45,16 @@ public class GameOfLifeField implements Observable {
             return;
 
         field[row][column] = alive;
+
+        cellsToBeUpdated.add(new int[]{row, column});
+        notifyObservers();
     }
 
     /**
      * Loads the next generation of the game of life.
-     *
-     * @return all cells that got a new life state (so the life state got toggled)
+     * It will notify the observers and pass them the positions of cells whose life state changed.
      */
-    public ArrayList<int[]> loadNextGeneration() {
+    public void loadNextGeneration() {
         // add coordinates of cells with a new life state
         ArrayList<int[]> toggledCells = new ArrayList<>();
 
@@ -63,15 +74,15 @@ public class GameOfLifeField implements Observable {
         for (int[] coordinate : toggledCells)
             field[coordinate[0]][coordinate[1]] = !field[coordinate[0]][coordinate[1]];
 
-        return toggledCells;
+        cellsToBeUpdated.addAll(toggledCells);
+        notifyObservers();
     }
 
     /**
-     * Kills all cells in the field
-     *
-     * @return coordinates of cells which got killed
+     * Kills all cells in the field.
+     * It will notify the observers and pass them the positions of cells who got killed.
      */
-    public ArrayList<int[]> killAllCells() {
+    public void killAllCells() {
         ArrayList<int[]> killedCells = new ArrayList<>();
 
         for (int row = 0; row < field.length; row++)
@@ -83,16 +94,17 @@ public class GameOfLifeField implements Observable {
                     killedCells.add(new int[]{row, col});
                 }
             }
-        return killedCells;
+        cellsToBeUpdated.addAll(killedCells);
+        notifyObservers();
     }
 
     /**
      * Kills al cells in the field except at the given coordinates
+     * It will notify the observers and pass them the positions of cells who got killed.
      *
      * @param cellPositions coordinates of cells that should not be killed
-     * @return coordinates of cells which got killed
      */
-    public ArrayList<int[]> killAllCellsExceptOf(int[]... cellPositions) {
+    public void killAllCellsExceptOf(int[]... cellPositions) {
         ArrayList<int[]> killedCells = new ArrayList<>();
 
         for (int row = 0; row < field.length; row++)
@@ -114,12 +126,70 @@ public class GameOfLifeField implements Observable {
                     killedCells.add(new int[]{row, col});
                 }
             }
-        return killedCells;
+
+        cellsToBeUpdated.addAll(killedCells);
+        notifyObservers();
+    }
+
+    /**
+     * Increments the generation counter.
+     * Will notify the registered observers.
+     */
+    public void incrementGenerationCounter() {
+        generationCounter++;
+        notifyObservers();
+    }
+
+    /**
+     * Reset the generation counter to 1.
+     * Will notify the registered observers.
+     */
+    public void resetGenerationCounter() {
+        generationCounter = 1;
+        notifyObservers();
+    }
+
+
+    /**
+     * Check if cell at given coordinate is alive
+     *
+     * @param coordinate of the cell
+     * @return whether the cell is alive or dead
+     */
+    public boolean isCellAliveAt(int[] coordinate) {
+        int row = coordinate[0];
+        int column = coordinate[1];
+        return field[row][column];
+    }
+
+    /**
+     * Clear the list of cells which has a new life state since the last time this method was called
+     * or, if it is the first call, since the game was started.
+     *
+     * @return The positions of cells which got a new life state.
+     */
+    public ArrayList<int[]> clearCellsToBeUpdated() {
+        final ArrayList<int[]> copy = new ArrayList<>(cellsToBeUpdated);
+        cellsToBeUpdated.clear();
+        return copy;
+    }
+
+    public int getGenerationCounter() {
+        return generationCounter;
+    }
+
+    public int getHeight() {
+        return HEIGHT;
+    }
+
+    public int getWidth() {
+        return WIDTH;
     }
 
     boolean isCoordinateInField(int row, int column) {
         return row >= 0 && row < HEIGHT && column >= 0 && column < WIDTH;
     }
+
 
     /**
      * Return row, which is next to the given row, if given row is outside the field boundaries.
@@ -168,44 +238,10 @@ public class GameOfLifeField implements Observable {
         return counter;
     }
 
-    /**
-     * Check if cell at given coordinate is alive
-     *
-     * @param coordinate of the cell
-     * @return whether the cell is alive or dead
-     */
-    public boolean isCellAliveAt(int[] coordinate) {
-        int row = coordinate[0];
-        int column = coordinate[1];
-        return field[row][column];
-    }
-
-    public void incrementGenerationCounter() {
-        generationCounter++;
-    }
-
-    /**
-     * Reset the generation counter to 1
-     */
-    public void resetGenerationCounter() {
-        generationCounter = 1;
-    }
-
-    public int getGenerationCounter() {
-        return generationCounter;
-    }
-
-    public int getHeight() {
-        return HEIGHT;
-    }
-
-    public int getWidth() {
-        return WIDTH;
-    }
-
     boolean[][] getField() {
         return field;
     }
+
 
     @Override
     public void register(Observer observer) {
