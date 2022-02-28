@@ -1,7 +1,9 @@
 package main.view;
 
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.Hashtable;
 
 /**
@@ -60,24 +62,50 @@ public class ControlPanel extends JPanel {
         this.add(generationTextLabel);
     }
 
-    public JButton getStartRestartBtn() {
-        return startRestartBtn;
+    public void setResetClearBtnText(String text) {
+        resetClearBtn.setText(text);
     }
 
-    public JButton getResetClearBtn() {
-        return resetClearBtn;
+    public void setGenerationTextLabel(int generationCounter) {
+        generationTextLabel.setText("Generation: " + generationCounter);
     }
 
-    public JButton getJumpButton() {
-        return jumpButton;
+
+    /**
+     * methods for adding ActionListener to ui elements
+     */
+
+    public void addStartRestartBtnActionListener(ActionListener a) {
+        startRestartBtn.addActionListener(a);
     }
 
-    public JSlider getDelaySlider() {
-        return delaySlider;
+    public void addResetClearBtnActionListener(ActionListener a) {
+        resetClearBtn.addActionListener(a);
     }
 
-    public JLabel getGenerationTextLabel() {
-        return generationTextLabel;
+    public void addJumpButtonActionListener(ActionListener a) {
+        jumpButton.addActionListener(a);
     }
 
+    public void addDelaySliderChangeListener(ChangeListener a) {
+        delaySlider.addChangeListener(a);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

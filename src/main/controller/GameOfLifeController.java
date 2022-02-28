@@ -46,49 +46,50 @@ public class GameOfLifeController {
 
         // --- set ActionListener of ControlPanel
         // start/restart button
-        JButton restartBtn = controlPanel.getStartRestartBtn();
-        restartBtn.addActionListener((e) -> {
-            if (isGameOfLiveRunning()) {
-                stopGameOfLive();
-                restartBtn.setText("Start");
-            } else {
-                startGameOfLive();
-                restartBtn.setText("Stop");
-            }
+        controlPanel.addStartRestartBtnActionListener((e) -> {
+            if (e.getSource() instanceof JButton startRestartButton)
+                if (isGameOfLiveRunning()) {
+                    stopGameOfLive();
+                    startRestartButton.setText("Start");
+                } else {
+                    startGameOfLive();
+                    startRestartButton.setText("Stop");
+                }
         });
 
         // jump button
-        controlPanel.getJumpButton().addActionListener((e) -> triggerNextGeneration());
+        controlPanel.addJumpButtonActionListener((e) -> triggerNextGeneration());
 
         // reset/clear button
-        JButton resetClearButton = controlPanel.getResetClearBtn();
-        resetClearButton.addActionListener((e) -> {
-            // if the current generation is not the first generation...
-            if (gameOfLifeField.getGenerationCounter() > 1) {
-                //... reset to the first generation and update fieldPanel...
-                for (int[] coordinate : resetToFirstGeneration())
-                    fieldPanel.toggleButton(coordinate);
+        controlPanel.addResetClearBtnActionListener((e) -> {
+            if (e.getSource() instanceof JButton resetClearButton)
+                // if the current generation is not the first generation...
+                if (gameOfLifeField.getGenerationCounter() > 1) {
+                    //... reset to the first generation and update fieldPanel...
+                    for (int[] coordinate : resetToFirstGeneration())
+                        fieldPanel.toggleButton(coordinate);
 
-                // update text of resetClearButton because now its functionality is to clear the field
-                resetClearButton.setText("Clear");
-                // update generationTextLabel
-                updateGenerationCounterText();
-            } else {
-                // ...otherwise kill all cells to clear the field
-                for (int[] coordinate : killAllCells())
-                    fieldPanel.toggleButton(coordinate);
-            }
+                    // update text of resetClearButton because now its functionality is to clear the field
+                    resetClearButton.setText("Clear");
+                    // update generationTextLabel
+                    updateGenerationCounterText();
+                } else {
+                    // ...otherwise kill all cells to clear the field
+                    for (int[] coordinate : killAllCells())
+                        fieldPanel.toggleButton(coordinate);
+                }
         });
 
         // delay slider
-        JSlider slider = controlPanel.getDelaySlider();
-        slider.addChangeListener((e) -> {
-            int currentSpeed = delay;
-            int currentValue = slider.getValue();
-            // only change speed when the slider has a final result
-            // or if the difference between current slider value and speed is greater than 3
-            if (slider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
-                setDelay((slider.getMaximum() - currentValue) * 100);
+        controlPanel.addDelaySliderChangeListener((e) -> {
+            if (e.getSource() instanceof JSlider delaySlider) {
+                int currentSpeed = delay;
+                int currentValue = delaySlider.getValue();
+                // only change speed when the slider has a final result
+                // or if the difference between current slider value and speed is greater than 3
+                if (delaySlider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
+                    setDelay((delaySlider.getMaximum() - currentValue) * 100);
+            }
         });
 
         mainFrame.setVisible(true);
@@ -220,7 +221,7 @@ public class GameOfLifeController {
      * Updates the text of the generationTextLabel to the current generation counter
      */
     public void updateGenerationCounterText() {
-        controlPanel.getGenerationTextLabel().setText("Generation: " + gameOfLifeField.getGenerationCounter());
+        controlPanel.setGenerationTextLabel(gameOfLifeField.getGenerationCounter());
     }
 
     /**
@@ -232,7 +233,8 @@ public class GameOfLifeController {
             for (int[] coordinate : loadNextGeneration())
                 fieldPanel.toggleButton(coordinate);
             updateGenerationCounterText();
-            controlPanel.getResetClearBtn().setText("Reset");
+
+            controlPanel.setResetClearBtnText("Reset");
         }
     }
 
