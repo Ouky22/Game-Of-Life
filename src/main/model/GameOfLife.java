@@ -3,21 +3,25 @@ package main.model;
 import main.view.Observer;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 public class GameOfLife implements Observable {
     private final GameOfLifeField gameOfLifeField;
 
     private int generationCounter = 1;
 
-    private final List<Observer> observers = new ArrayList<>();
+    private final ArrayList<Observer> observers = new ArrayList<>();
 
     /**
      * List which contains the positions of cells that have a new life state.
      * This list is passed to the observers for them to update their view.
      * After that this list will be emptied.
      */
-    final ArrayList<int[]> cellsToBeUpdated = new ArrayList<>();
+    private final ArrayList<int[]> cellsToBeUpdated = new ArrayList<>();
+
+    // contains the positions of the living cells of the first generation
+    private final ArrayList<int[]> firstGenCellPositions = new ArrayList<>();
+
 
     /**
      * Create a gameOfLife.
@@ -31,6 +35,8 @@ public class GameOfLife implements Observable {
 
     /**
      * Set one cell alive or not alive at the given row and column in the field.
+     * If it is the first generation, the cell position is stored in a list containing
+     * the positions of the cells of the first generation.
      * The registered observers get notified.
      *
      * @param row    row of the cell
@@ -38,10 +44,73 @@ public class GameOfLife implements Observable {
      * @param alive  whether the cell should be alive or dead
      */
     public void setCellAt(int row, int column, boolean alive) {
-        gameOfLifeField.setCellAt(row, column, alive);
+        // if the coordinate is outside the field, return
+        if (!gameOfLifeField.setCellAt(row, column, alive))
+            return;
+
+        // if it is the first generation, the positions of the living cells
+        // in the firstGenCellPositions list have to be updated
+        if (generationCounter == 1)
+            updateFirstGenCellPositions(new int[]{row, column}, alive);
 
         cellsToBeUpdated.add(new int[]{row, column});
         notifyObservers();
+    }
+
+    /**
+     * Kills all cells except the cells from the first generation.
+     * If cells from the first generation are dead, they are brought back to life.
+     * Notifies the registered observers.
+     */
+    public void resetToFirstGeneration() {
+        // kill all cells that are not first generation cells.
+        // Save them in a list containing all cells which have a new life state.
+        ArrayList<int[]> toggledCells = gameOfLifeField.killAllCellsExceptOf(firstGenCellPositions);
+
+        // if a cell from the first generation is not alive, bring it back to life
+        for (int[] coordinate : firstGenCellPositions)
+            if (!gameOfLifeField.isCellAliveAt(coordinate)) {
+                gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);
+                toggledCells.add(coordinate);
+            }
+
+        resetGenerationCounter();
+        cellsToBeUpdated.addAll(toggledCells);
+        notifyObservers();
+    }
+
+    /**
+     * Kills all cells in the field and the game of life starts with a new (empty) first generation.
+     * Notifies the registered observers.
+     */
+    public void resetGameOfLife() {
+        firstGenCellPositions.clear();
+        resetGenerationCounter();
+        cellsToBeUpdated.addAll(gameOfLifeField.killAllCells());
+        notifyObservers();
+    }
+
+    /**
+     * Updates the firstGenCellPositions list.
+     * It makes sure that cell positions in the firstGenCellPositions list only occur at most once.
+     *
+     * @param coordinate Coordinate of the cell
+     * @param addIt      Whether the cell position should be added to or removed from the firstGenCellPositions list
+     */
+    private void updateFirstGenCellPositions(int[] coordinate, boolean addIt) {
+        // index of the given coordinate in the firstGenCellPositions list.
+        int coordinateIndex = -1;
+        // get the index of the coordinate in the firstGenCellPositions list. If it is not in the list, the index is -1.
+        for (int i = 0; i < firstGenCellPositions.size(); i++)
+            if (Arrays.equals(firstGenCellPositions.get(i), coordinate))
+                coordinateIndex = i;
+
+        // if the cell should be added and is not already in the firstGenCellPositions list, add it to firstGenCellPositions
+        if (addIt && coordinateIndex == -1)
+            firstGenCellPositions.add(coordinate);
+            // if the cell should be removed and is in the firstGenCellPositions list, remove it from firstGenCellPositions
+        else if (!addIt && coordinateIndex >= 0)
+            firstGenCellPositions.remove(coordinateIndex);
     }
 
     /**
@@ -50,26 +119,7 @@ public class GameOfLife implements Observable {
      */
     public void loadNextGeneration() {
         cellsToBeUpdated.addAll(gameOfLifeField.getNextGeneration());
-        notifyObservers();
-    }
-
-    /**
-     * Kills all cells in the gameOfLife field.
-     * The registered observers get notified.
-     */
-    public void killAllCells() {
-        cellsToBeUpdated.addAll(gameOfLifeField.killAllCells());
-        notifyObservers();
-    }
-
-    /**
-     * Kills all cells in the field except at the given coordinates (row, column).
-     * The registered observers get notified.
-     *
-     * @param cellPositions coordinates (row, column) of cells that should not be killed
-     */
-    public void killAllCellsExceptOf(int[]... cellPositions) {
-        cellsToBeUpdated.addAll(gameOfLifeField.killAllCellsExceptOf(cellPositions));
+        generationCounter++;
         notifyObservers();
     }
 
@@ -83,15 +133,6 @@ public class GameOfLife implements Observable {
         final ArrayList<int[]> copy = new ArrayList<>(cellsToBeUpdated);
         cellsToBeUpdated.clear();
         return copy;
-    }
-
-    /**
-     * Increments the generation counter.
-     * Will notify the registered observers.
-     */
-    public void incrementGenerationCounter() {
-        generationCounter++;
-        notifyObservers();
     }
 
     /**

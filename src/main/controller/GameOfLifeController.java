@@ -1,5 +1,6 @@
 package main.controller;
 
+import main.model.GameOfLife;
 import main.model.GameOfLifeField;
 import main.view.ControlPanel;
 import main.view.FieldPanel;
@@ -14,20 +15,18 @@ import java.util.ArrayList;
  * Mediator between the logic and the UI
  */
 public class GameOfLifeController {
-    private final GameOfLifeField gameOfLifeField;
     private final MainFrame mainFrame;
     private final FieldPanel fieldPanel;
     private final ControlPanel controlPanel;
 
+    private final GameOfLife gameOfLife;
+
     private int delay = 1000;
     private final Timer timer;
 
-    // contains the positions of the cells in the first generation
-    private final ArrayList<int[]> firstGenCellPositions = new ArrayList<>();
 
-
-    public GameOfLifeController(GameOfLifeField field, MainFrame frame) {
-        this.gameOfLifeField = field;
+    public GameOfLifeController(GameOfLife gof, MainFrame frame) {
+        this.gameOfLife = gof;
         this.mainFrame = frame;
         this.fieldPanel = frame.getFieldPanel();
         this.controlPanel = frame.getControlPanel();
@@ -36,7 +35,10 @@ public class GameOfLifeController {
         init();
 
         // initialize timer
-        this.timer = new Timer(delay, new TimerListener());
+        this.timer = new Timer(delay, (e) -> {
+            gameOfLife.loadNextGeneration();
+            controlPanel.setResetClearBtnText("Reset");
+        });
         timer.setInitialDelay(50);
     }
 
@@ -47,7 +49,7 @@ public class GameOfLifeController {
                 boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
                 int row = Integer.parseInt(btn.getActionCommand().split(",")[1]);
                 int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
-                setCellAt(row, column, !alive);
+                gameOfLife.setCellAt(row, column, !alive);
             }
         });
 
@@ -71,15 +73,15 @@ public class GameOfLifeController {
         controlPanel.addResetClearBtnActionListener((e) -> {
             if (e.getSource() instanceof JButton resetClearButton)
                 // if the current generation is not the first generation...
-                if (gameOfLifeField.getGenerationCounter() > 1) {
+                if (gameOfLife.getGenerationCounter() > 1) {
                     //... reset to the first generation
-                    resetToFirstGeneration();
+                    gameOfLife.resetToFirstGeneration();
                     // update text of resetClearButton because now its functionality is to clear the field
                     resetClearButton.setText("Clear");
                     // update generationTextLabel
                 } else {
-                    // ...otherwise kill all cells to clear the field
-                    killAllCells();
+                    // ...otherwise reset the game of life
+                    gameOfLife.resetGameOfLife();
                 }
         });
 
@@ -96,45 +98,6 @@ public class GameOfLifeController {
         });
 
         mainFrame.setVisible(true);
-    }
-
-
-    /**
-     * Loads the next generation of the game of life and increments the generation counter
-     */
-    public void loadNextGeneration() {
-        gameOfLifeField.incrementGenerationCounter();
-        gameOfLifeField.loadNextGeneration();
-    }
-
-    /**
-     * Set one cell alive or not alive in the gameOfLive field at the given row and column.
-     * If it is the first generation, the list containing the cell positions from the first generation will be updated.
-     *
-     * @param row    row of the cell
-     * @param column column of the cell
-     * @param alive  whether the cell should be alive or dead
-     */
-    public void setCellAt(int row, int column, boolean alive) {
-        gameOfLifeField.setCellAt(row, column, alive);
-
-        // if it is the first generation, the positions of the living cells
-        // needs to be updated in the firstGenCellPositions list. Otherwise, return.
-        if (gameOfLifeField.getGenerationCounter() != 1)
-            return;
-
-        // if a cell is brought to life, add it to firstGenCellPositions
-        if (alive) {
-            firstGenCellPositions.add(new int[]{row, column});
-            return;
-        }
-
-        // if a cell is killed, remove it from firstGenCellPositions
-        for (int i = 0; i < firstGenCellPositions.size(); i++)
-            if (firstGenCellPositions.get(i)[0] == row && firstGenCellPositions.get(i)[1] == column) {
-                firstGenCellPositions.remove(i);
-                break;
-            }
     }
 
     /**
@@ -168,35 +131,6 @@ public class GameOfLifeController {
         timer.restart();
     }
 
-    /**
-     * Kills all cells in the field except the cells from the first generation.
-     * If cells from the first generation are dead, they are brought back to live.
-     */
-    public void resetToFirstGeneration() {
-        // convert the startCellPositions list to array
-        int[][] startPositionsArray = new int[firstGenCellPositions.size()][2];
-        for (int row = 0; row < firstGenCellPositions.size(); row++)
-            startPositionsArray[row] = firstGenCellPositions.get(row);
-
-        // kill all cells in the field except the cell(s) from the first generation (in startCellPositions)
-        gameOfLifeField.killAllCellsExceptOf(startPositionsArray);
-
-        // if a cell from the first generation is dead, bring it back to life
-        for (int[] coordinate : firstGenCellPositions)
-            if (!gameOfLifeField.isCellAliveAt(coordinate)) {
-                setCellAt(coordinate[0], coordinate[1], true);
-            }
-        gameOfLifeField.resetGenerationCounter();
-    }
-
-    /**
-     * Kills all cells in the field.
-     */
-    public void killAllCells() {
-        firstGenCellPositions.clear();
-        gameOfLifeField.killAllCells();
-    }
-
     public boolean isGameOfLiveRunning() {
         return timer.isRunning();
     }
@@ -209,16 +143,5 @@ public class GameOfLifeController {
     public void setDelay(int delay) {
         this.delay = delay;
         this.timer.setDelay(delay);
-    }
-
-    /**
-     * ActionListener, which executes all the necessary steps for loading the next generation if the timer fires an event
-     */
-    class TimerListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            loadNextGeneration();
-            controlPanel.setResetClearBtnText("Reset");
-        }
     }
 }

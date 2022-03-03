@@ -117,7 +117,7 @@ public class GameOfLifeFieldTest {
             }
 
             // load next generation
-            gameOfLifeField.loadNextGeneration();
+            gameOfLifeField.getNextGeneration();
         }
     }
 
@@ -147,7 +147,9 @@ public class GameOfLifeFieldTest {
         GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
 
         // bring cells to life...
-        int[][] sparedCells = {{0, 0}, {height - 1, width - 1}};
+        ArrayList<int[]> sparedCells = new ArrayList<>();
+        sparedCells.add(new int[]{0, 0});
+        sparedCells.add(new int[]{height - 1, width - 1});
         int[][] cellsToBeKilled = {{5, 5}, {0, width - 1}};
         for (int[] coordinate : sparedCells)
             gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true);

@@ -1,6 +1,6 @@
 package main.view;
 
-import main.model.GameOfLifeField;
+import main.model.GameOfLife;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,14 +12,14 @@ public class MainFrame extends JFrame {
     private final FieldPanel fieldPanel;
     private final ControlPanel controlPanel;
 
-    public MainFrame(GameOfLifeField gameOfLifeField) {
+    public MainFrame(GameOfLife gameOfLife) {
         this.setLayout(new BorderLayout());
 
         // add fieldPanel, which displays the gameOfLive field
-        this.add(fieldPanel = new FieldPanel(gameOfLifeField), BorderLayout.CENTER);
+        this.add(fieldPanel = new FieldPanel(gameOfLife), BorderLayout.CENTER);
 
         // add ControlPanel, which is for adjusting settings of the game of life
-        this.add(controlPanel = new ControlPanel(gameOfLifeField), BorderLayout.NORTH);
+        this.add(controlPanel = new ControlPanel(gameOfLife), BorderLayout.NORTH);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(750, 750);

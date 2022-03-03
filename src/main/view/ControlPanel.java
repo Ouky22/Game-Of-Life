@@ -1,6 +1,6 @@
 package main.view;
 
-import main.model.GameOfLifeField;
+import main.model.GameOfLife;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -19,10 +19,10 @@ public class ControlPanel extends JPanel implements Observer {
     private final JSlider delaySlider;
     private final JLabel generationTextLabel;
 
-    private final GameOfLifeField gameOfLifeField;
+    private final GameOfLife gameOfLife;
 
-    public ControlPanel(GameOfLifeField gameOfLifeField) {
-        this.gameOfLifeField = gameOfLifeField;
+    public ControlPanel(GameOfLife gameOfLifeField) {
+        this.gameOfLife = gameOfLifeField;
         gameOfLifeField.register(this);
 
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 25, 15));
@@ -95,7 +95,7 @@ public class ControlPanel extends JPanel implements Observer {
 
     @Override
     public void update() {
-        generationTextLabel.setText("Generation: " + gameOfLifeField.getGenerationCounter());
+        generationTextLabel.setText("Generation: " + gameOfLife.getGenerationCounter());
     }
 }
 

@@ -1,10 +1,7 @@
 package main.model;
 
-import main.view.Observer;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Contains the logic and data for the game of life
@@ -32,12 +29,14 @@ public class GameOfLifeField {
      * @param row    row of the cell
      * @param column column of the cell
      * @param alive  whether the cell should be alive or dead
+     * @return returns false if row or column are outside the field and true if operation was successful
      */
-    void setCellAt(int row, int column, boolean alive) {
+    boolean setCellAt(int row, int column, boolean alive) {
         if (!isCoordinateInField(row, column))
-            return;
+            return false;
 
         field[row][column] = alive;
+        return true;
     }
 
     /**
@@ -91,7 +90,7 @@ public class GameOfLifeField {
      *
      * @param cellPositions coordinates (row, column) of cells that should not be killed
      */
-    ArrayList<int[]> killAllCellsExceptOf(int[]... cellPositions) {
+    ArrayList<int[]> killAllCellsExceptOf(ArrayList<int[]> cellPositions) {
         ArrayList<int[]> killedCells = new ArrayList<>();
 
         for (int row = 0; row < field.length; row++)
