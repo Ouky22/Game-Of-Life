@@ -123,6 +123,7 @@ public class ControlPanel extends JPanel implements Observer {
     @Override
     public void update() {
         generationTextLabel.setText("Generation: " + gameOfLife.getGenerationCounter());
+        coverageTextLabel.setText("Coverage: " + gameOfLife.getLivingCellsCoverage() + " %");
 
         if (gameOfLife.getGenerationCounter() > 1) {
             resetClearBtn.setIcon(IconProvider.getIcon(IconProvider.Icon.RESET));
