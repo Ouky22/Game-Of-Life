@@ -17,34 +17,34 @@ public class GameOfLifeFieldTest {
         GameOfLifeField gameOfLifeField = new GameOfLifeField(100, 100);
 
         // at the beginning every cell in the field is dead (false)
-        for (boolean[] row : gameOfLifeField.getField())
-            for (boolean b : row)
-                assertFalse(b);
+        for (GofCell[] row : gameOfLifeField.getField())
+            for (GofCell b : row)
+                assertFalse(b.isAlive());
 
         // pass coordinates that are outside the field
         gameOfLifeField.setCellAt(-1, 999, true);
         // so there is still no cell alive
-        for (boolean[] row : gameOfLifeField.getField())
-            for (boolean b : row)
-                assertFalse(b);
+        for (GofCell[] row : gameOfLifeField.getField())
+            for (GofCell b : row)
+                assertFalse(b.isAlive());
 
         // bring cell at row 0 and column 0 to life
         gameOfLifeField.setCellAt(0, 0, true);
         // only at row 0 and column 0 there should be a living cell
-        boolean[][] booleanField = gameOfLifeField.getField();
+        GofCell[][] booleanField = gameOfLifeField.getField();
         for (int row = 0; row < booleanField.length; row++)
             for (int col = 0; col < booleanField[row].length; col++)
                 if (row == 0 && col == 0)
-                    assertTrue(booleanField[row][col]);
+                    assertTrue(booleanField[row][col].isAlive());
                 else
-                    assertFalse(booleanField[row][col]);
+                    assertFalse(booleanField[row][col].isAlive());
 
         // bring cell at row 0 and column 0 to life
         gameOfLifeField.setCellAt(0, 0, false);
         // so again there is no cell alive
-        for (boolean[] row : gameOfLifeField.getField())
-            for (boolean b : row)
-                assertFalse(b);
+        for (GofCell[] row : gameOfLifeField.getField())
+            for (GofCell b : row)
+                assertFalse(b.isAlive());
 
     }
 
@@ -110,10 +110,8 @@ public class GameOfLifeFieldTest {
             for (int[] coordinate : generation) {
                 int row = coordinate[0];
                 int column = coordinate[1];
-                // get life status of cell at given coordinate
-                boolean isAlive = gameOfLifeField.getField()[row][column];
                 // the cells at the given coordinate should be alive
-                assertTrue(isAlive);
+                assertTrue(gameOfLifeField.getField()[row][column].isAlive());
             }
 
             // load next generation
@@ -135,9 +133,9 @@ public class GameOfLifeFieldTest {
         gameOfLifeField.killAllCells();
 
         // all cells in the field should be dead
-        for (boolean[] row : gameOfLifeField.getField())
-            for (boolean col : row)
-                assertFalse(col);
+        for (GofCell[] row : gameOfLifeField.getField())
+            for (GofCell col : row)
+                assertFalse(col.isAlive());
     }
 
     @Test
@@ -172,9 +170,9 @@ public class GameOfLifeFieldTest {
 
                 // if cell should have been spared, it should be still alive...
                 if (isSparedCellPosition)
-                    assertTrue(gameOfLifeField.getField()[row][col]);
+                    assertTrue(gameOfLifeField.getField()[row][col].isAlive());
                 else // ...otherwise it should be dead
-                    assertFalse(gameOfLifeField.getField()[row][col]);
+                    assertFalse(gameOfLifeField.getField()[row][col].isAlive());
             }
     }
 

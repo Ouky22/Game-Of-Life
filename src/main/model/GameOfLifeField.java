@@ -7,7 +7,7 @@ import java.util.Arrays;
  * Contains the logic and data for the game of life
  */
 public class GameOfLifeField {
-    private final boolean[][] field;
+    private final GofCell[][] field;
     private final int WIDTH;
     private final int HEIGHT;
 
@@ -18,7 +18,12 @@ public class GameOfLifeField {
      * @param width  The width of the field
      */
     GameOfLifeField(int height, int width) {
-        field = new boolean[height][width];
+        // create field and fill it with GofCells
+        field = new GofCell[height][width];
+        for (int row = 0; row < field.length; row++)
+            for (int col = 0; col < field[row].length; col++)
+                field[row][col] = new GofCell();
+
         WIDTH = width;
         HEIGHT = height;
     }
@@ -35,7 +40,7 @@ public class GameOfLifeField {
         if (!isCoordinateInField(row, column))
             return false;
 
-        field[row][column] = alive;
+        field[row][column].setAlive(alive);
         return true;
     }
 
@@ -52,7 +57,7 @@ public class GameOfLifeField {
         for (int row = 0; row < HEIGHT; row++)
             for (int col = 0; col < WIDTH; col++) {
                 int neighboursAmount = getAmountLivingNeighbours(row, col);
-                boolean alive = field[row][col];
+                boolean alive = field[row][col].isAlive();
 
                 if (!alive && neighboursAmount == 3) // bring dead cell to life
                     toggledCells.add(new int[]{row, col});
@@ -61,8 +66,10 @@ public class GameOfLifeField {
             }
 
         // change state of cells in field
-        for (int[] coordinate : toggledCells)
-            field[coordinate[0]][coordinate[1]] = !field[coordinate[0]][coordinate[1]];
+        for (int[] coordinate : toggledCells) {
+            GofCell currentCell = field[coordinate[0]][coordinate[1]];
+            currentCell.setAlive(!currentCell.isAlive());
+        }
 
         return toggledCells;
     }
@@ -76,9 +83,9 @@ public class GameOfLifeField {
         for (int row = 0; row < field.length; row++)
             for (int col = 0; col < field[row].length; col++) {
                 // if cell is alive...
-                if (field[row][col]) {
+                if (field[row][col].isAlive()) {
                     // ...kill it
-                    field[row][col] = false;
+                    field[row][col].setAlive(false);
                     killedCells.add(new int[]{row, col});
                 }
             }
@@ -106,9 +113,9 @@ public class GameOfLifeField {
                     }
 
                 // if cell should be killed and is alive
-                if (shouldBeKilled && field[row][col]) {
+                if (shouldBeKilled && field[row][col].isAlive()) {
                     // ...kill it
-                    field[row][col] = false;
+                    field[row][col].setAlive(false);
                     killedCells.add(new int[]{row, col});
                 }
             }
@@ -125,7 +132,7 @@ public class GameOfLifeField {
     boolean isCellAliveAt(int[] coordinate) {
         int row = coordinate[0];
         int column = coordinate[1];
-        return field[row][column];
+        return field[row][column].isAlive();
     }
 
     int getHeight() {
@@ -178,16 +185,19 @@ public class GameOfLifeField {
         for (int i = row - 1; i <= row + 1; i++)
             for (int k = column - 1; k <= column + 1; k++) {
                 // adapt coordinates if they are outside the field boundaries
-                int torusRow = getNextTorusRow(i);
-                int torusColumn = getNextTorusColumn(k);
+                int currentRow = getNextTorusRow(i);
+                int currentColumn = getNextTorusColumn(k);
 
-                if ((torusRow != row || torusColumn != column) && field[torusRow][torusColumn])
+                // A neighbour cell has two characteristics:
+                // - it is alive,
+                // - and it has a coordinate (currentRow, currentColumn) unequal the given coordinate (row, column)
+                if (field[currentRow][currentColumn].isAlive() && (currentRow != row || currentColumn != column))
                     counter++;
             }
         return counter;
     }
 
-    boolean[][] getField() {
+    GofCell[][] getField() {
         return field;
     }
 }
