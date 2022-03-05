@@ -12,6 +12,12 @@ public class GameOfLifeField {
     private final int HEIGHT;
 
     /**
+     * Counter for how many cells are alive
+     */
+    private int livingCellsCounter = 0;
+
+
+    /**
      * Create a field for the gameOfLife.
      *
      * @param height The height of the field
@@ -36,6 +42,7 @@ public class GameOfLifeField {
             return false;
 
         field[row][column] = alive;
+        livingCellsCounter++;
         return true;
     }
 
@@ -54,10 +61,13 @@ public class GameOfLifeField {
                 int neighboursAmount = getAmountLivingNeighbours(row, col);
                 boolean alive = field[row][col];
 
-                if (!alive && neighboursAmount == 3) // bring dead cell to life
+                if (!alive && neighboursAmount == 3) { // bring dead cell to life
                     toggledCells.add(new int[]{row, col});
-                else if (alive && (neighboursAmount < 2 || neighboursAmount > 3)) // cell dies
+                    livingCellsCounter++;
+                } else if (alive && (neighboursAmount < 2 || neighboursAmount > 3)) { // cell dies
                     toggledCells.add(new int[]{row, col});
+                    livingCellsCounter--;
+                }
             }
 
         // change state of cells in field
@@ -82,6 +92,7 @@ public class GameOfLifeField {
                     killedCells.add(new int[]{row, col});
                 }
             }
+        livingCellsCounter = 0;
         return killedCells;
     }
 
@@ -110,6 +121,7 @@ public class GameOfLifeField {
                     // ...kill it
                     field[row][col] = false;
                     killedCells.add(new int[]{row, col});
+                    livingCellsCounter--;
                 }
             }
 
@@ -126,6 +138,13 @@ public class GameOfLifeField {
         int row = coordinate[0];
         int column = coordinate[1];
         return field[row][column];
+    }
+
+    /**
+     * @return What percentage of the field is living cells. The value is always rounded down to an integer.
+     */
+    public int getLivingCellsCoverage() {
+        return (int) (((double) livingCellsCounter / (WIDTH * HEIGHT)) * 100);
     }
 
     int getHeight() {

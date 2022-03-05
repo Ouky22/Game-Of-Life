@@ -178,7 +178,6 @@ public class GameOfLifeFieldTest {
             }
     }
 
-
     @Test
     void testGetNextRowAndColumn() {
         int width = 10;
@@ -197,6 +196,40 @@ public class GameOfLifeFieldTest {
         assertEquals(width - 1, gameOfLifeField.getNextTorusColumn(-1));
         // column >= width => column = 0
         assertEquals(0, gameOfLifeField.getNextTorusColumn(width));
+    }
+
+    @Test
+    void testGetLivingCellsCoverage() {
+        GameOfLifeField field = new GameOfLifeField(10, 10);
+        // no cell is alive, so the coverage must be 0
+        assertEquals(0, field.getLivingCellsCoverage());
+
+        // bring all cells in the first row (index = 0) to life (10 cells)
+        for (int i = 0; i < 10; i++)
+            field.setCellAt(0, i, true);
+
+        // there are 10 * 10 = 100 cells in the field. 10 of them are alive.
+        // So the coverage must be 10 %
+        assertEquals(10, field.getLivingCellsCoverage());
+
+        // bring 9 more cells in row with index 9 to life, so 19 cells are alive
+        for (int i = 0; i < 9; i++)
+            field.setCellAt(9, i, true);
+        // the coverage must 19 / (10 * 10) = 19 %
+        assertEquals(19, field.getLivingCellsCoverage());
+
+        // kill all cells except of 2 cells
+        ArrayList<int[]> sparedCells = new ArrayList<>();
+        sparedCells.add(new int[]{0, 0});
+        sparedCells.add(new int[]{0, 5});
+        field.killAllCellsExceptOf(sparedCells);
+        // so the coverage must be 2 / 100 = 2 %
+        assertEquals(2, field.getLivingCellsCoverage());
+
+        // kill all cells
+        field.killAllCells();
+        // so the coverage must be 0 %
+        assertEquals(0, field.getLivingCellsCoverage());
     }
 
     // first dimension: generation
