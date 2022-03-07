@@ -2,7 +2,8 @@ package main.controller;
 
 import main.model.GameOfLife;
 import main.utility.IconProvider;
-import main.view.ControlPanel;
+import main.view.controlpanel.BottomControlPanel;
+import main.view.controlpanel.TopControlPanel;
 import main.view.FieldPanel;
 import main.view.MainFrame;
 
@@ -14,7 +15,8 @@ import javax.swing.*;
 public class GameOfLifeController {
     private final MainFrame mainFrame;
     private final FieldPanel fieldPanel;
-    private final ControlPanel controlPanel;
+    private final TopControlPanel topControlPanel;
+    private final BottomControlPanel bottomControlPanel;
 
     private final GameOfLife gameOfLife;
 
@@ -26,7 +28,8 @@ public class GameOfLifeController {
         this.gameOfLife = gof;
         this.mainFrame = frame;
         this.fieldPanel = frame.getFieldPanel();
-        this.controlPanel = frame.getControlPanel();
+        this.topControlPanel = frame.getTopControlPanel();
+        this.bottomControlPanel = frame.getBottomControlPanel();
 
         // init ui with values from gameOfLifeField and add actionListener
         init();
@@ -49,7 +52,7 @@ public class GameOfLifeController {
 
         // --- set ActionListener of ControlPanel
         // start/restart button
-        controlPanel.addStartRestartBtnActionListener((e) -> {
+        topControlPanel.addStartRestartBtnActionListener((e) -> {
             if (e.getSource() instanceof JButton startRestartButton)
                 if (isGameOfLiveRunning()) {
                     stopGameOfLive();
@@ -63,10 +66,10 @@ public class GameOfLifeController {
         });
 
         // next button
-        controlPanel.addNextGenerationBtnActionListener((e) -> triggerNextGeneration());
+        topControlPanel.addNextGenerationBtnActionListener((e) -> triggerNextGeneration());
 
         // reset/clear button
-        controlPanel.addResetClearBtnActionListener((e) -> {
+        topControlPanel.addResetClearBtnActionListener((e) -> {
             // if the current generation is not the first generation...
             if (gameOfLife.getGenerationCounter() > 1)
                 //... reset to the first generation
@@ -77,7 +80,7 @@ public class GameOfLifeController {
         });
 
         // delay slider
-        controlPanel.addDelaySliderChangeListener((e) -> {
+        topControlPanel.addDelaySliderChangeListener((e) -> {
             if (e.getSource() instanceof JSlider delaySlider) {
                 int currentDelay = delay;
                 int currentValue = delaySlider.getValue();

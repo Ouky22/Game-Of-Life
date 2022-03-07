@@ -1,7 +1,8 @@
-package main.view;
+package main.view.controlpanel;
 
 import main.utility.IconProvider;
 import main.model.GameOfLife;
+import main.view.Observer;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -12,7 +13,7 @@ import java.util.Hashtable;
 /**
  * A JPanel which has widgets for controlling the game of life (e.g. start or stop the game via buttons)
  */
-public class ControlPanel extends JPanel implements Observer {
+public class TopControlPanel extends JPanel implements Observer {
 
     private final JButton previousGenerationButton;
     private final JButton nextGenerationBtn;
@@ -25,7 +26,7 @@ public class ControlPanel extends JPanel implements Observer {
 
     private final GameOfLife gameOfLife;
 
-    public ControlPanel(GameOfLife gameOfLifeField) {
+    public TopControlPanel(GameOfLife gameOfLifeField) {
         this.gameOfLife = gameOfLifeField;
         gameOfLifeField.register(this);
 

@@ -141,7 +141,6 @@ public class GameOfLifeField {
     }
 
     /**
-<<<<<<< HEAD
      * @return What percentage of the field is living cells. The value is rounded to one decimal place.
      */
     public double getLivingCellsCoverage() {
