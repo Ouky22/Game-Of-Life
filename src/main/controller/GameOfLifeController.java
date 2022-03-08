@@ -1,15 +1,13 @@
 package main.controller;
 
 import main.model.GameOfLife;
-import main.model.GameOfLifeField;
-import main.view.ControlPanel;
+import main.utility.IconProvider;
+import main.view.controlpanel.BottomControlPanel;
+import main.view.controlpanel.TopControlPanel;
 import main.view.FieldPanel;
 import main.view.MainFrame;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  * Mediator between the logic and the UI
@@ -17,7 +15,8 @@ import java.util.ArrayList;
 public class GameOfLifeController {
     private final MainFrame mainFrame;
     private final FieldPanel fieldPanel;
-    private final ControlPanel controlPanel;
+    private final TopControlPanel topControlPanel;
+    private final BottomControlPanel bottomControlPanel;
 
     private final GameOfLife gameOfLife;
 
@@ -29,16 +28,14 @@ public class GameOfLifeController {
         this.gameOfLife = gof;
         this.mainFrame = frame;
         this.fieldPanel = frame.getFieldPanel();
-        this.controlPanel = frame.getControlPanel();
+        this.topControlPanel = frame.getTopControlPanel();
+        this.bottomControlPanel = frame.getBottomControlPanel();
 
         // init ui with values from gameOfLifeField and add actionListener
         init();
 
         // initialize timer
-        this.timer = new Timer(delay, (e) -> {
-            gameOfLife.loadNextGeneration();
-            controlPanel.setResetClearBtnText("Reset");
-        });
+        this.timer = new Timer(delay, (e) -> gameOfLife.loadNextGeneration());
         timer.setInitialDelay(50);
     }
 
@@ -55,45 +52,47 @@ public class GameOfLifeController {
 
         // --- set ActionListener of ControlPanel
         // start/restart button
-        controlPanel.addStartRestartBtnActionListener((e) -> {
+        topControlPanel.addStartRestartBtnActionListener((e) -> {
             if (e.getSource() instanceof JButton startRestartButton)
                 if (isGameOfLiveRunning()) {
                     stopGameOfLive();
-                    startRestartButton.setText("Start");
+                    startRestartButton.setIcon(IconProvider.getIcon(IconProvider.Icon.START));
+                    startRestartButton.setToolTipText("Start the game of life");
                 } else {
                     startGameOfLive();
-                    startRestartButton.setText("Stop");
+                    startRestartButton.setIcon(IconProvider.getIcon(IconProvider.Icon.STOP));
+                    startRestartButton.setToolTipText("Stop the game of life");
                 }
         });
 
-        // jump button
-        controlPanel.addJumpButtonActionListener((e) -> triggerNextGeneration());
+        // next button
+        topControlPanel.addNextGenerationBtnActionListener((e) -> triggerNextGeneration());
 
         // reset/clear button
-        controlPanel.addResetClearBtnActionListener((e) -> {
-            if (e.getSource() instanceof JButton resetClearButton)
-                // if the current generation is not the first generation...
-                if (gameOfLife.getGenerationCounter() > 1) {
-                    //... reset to the first generation
-                    gameOfLife.resetToFirstGeneration();
-                    // update text of resetClearButton because now its functionality is to clear the field
-                    resetClearButton.setText("Clear");
-                    // update generationTextLabel
-                } else {
-                    // ...otherwise reset the game of life
-                    gameOfLife.resetGameOfLife();
-                }
+        topControlPanel.addResetClearBtnActionListener((e) -> {
+            // if the current generation is not the first generation...
+            if (gameOfLife.getGenerationCounter() > 1)
+                //... reset to the first generation
+                gameOfLife.resetToFirstGeneration();
+            else
+                // ...otherwise reset the game of life (clear the field)
+                gameOfLife.resetGameOfLife();
         });
 
         // delay slider
-        controlPanel.addDelaySliderChangeListener((e) -> {
+        topControlPanel.addDelaySliderChangeListener((e) -> {
             if (e.getSource() instanceof JSlider delaySlider) {
-                int currentSpeed = delay;
+                int currentDelay = delay;
                 int currentValue = delaySlider.getValue();
-                // only change speed when the slider has a final result
-                // or if the difference between current slider value and speed is greater than 3
-                if (delaySlider.getValueIsAdjusting() || Math.abs(currentValue - currentSpeed) > 3)
-                    setDelay((delaySlider.getMaximum() - currentValue) * 100);
+                // only change speed if slider has final result
+                // or if the difference between current slider value and current speed is greater than 3
+                if (delaySlider.getValueIsAdjusting() || Math.abs(currentValue - currentDelay) > 3) {
+                    // delayFactor for more subtle delay adjustment
+                    int delayFactor = 100;
+                    if (currentValue > (delaySlider.getMaximum() - delaySlider.getMinimum()) / 2)
+                        delayFactor = 75;
+                    setDelay((delaySlider.getMaximum() + 1 - currentValue) * delayFactor);
+                }
             }
         });
 

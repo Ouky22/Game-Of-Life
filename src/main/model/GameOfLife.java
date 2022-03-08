@@ -156,6 +156,10 @@ public class GameOfLife implements Observable {
         return gameOfLifeField.getWidth();
     }
 
+    public double getLivingCellsCoverage() {
+        return gameOfLifeField.getLivingCellsCoverage();
+    }
+
 
     @Override
     public void register(Observer observer) {
