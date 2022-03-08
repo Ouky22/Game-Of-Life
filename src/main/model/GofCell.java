@@ -9,7 +9,16 @@ public class GofCell {
     private boolean alive = false;
     private Color color = Color.RED;
 
-
+    /**
+     * Bring the cell to life and set its color
+     * @param alive Whether the cell should be alive or not
+     * @param color The color the cell should have
+     */
+    public void set(boolean alive, Color color) {
+        this.alive = alive;
+        this.color = color;
+    }
+    
     public boolean isAlive() {
         return alive;
     }
