@@ -1,7 +1,9 @@
 package main.model;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Contains the logic and data for the game of life
@@ -35,18 +37,21 @@ public class GameOfLifeField {
     }
 
     /**
-     * Set one cell alive or not alive at the given row and column in the field.
+     * Set the life state and the color of one cell in the field at the given coordinate (row, column),
+     * if the coordinate is inside the field boundaries.
      *
-     * @param row    row of the cell
-     * @param column column of the cell
-     * @param alive  whether the cell should be alive or dead
+     * @param row       row of the cell
+     * @param column    column of the cell
+     * @param alive     whether the cell should be alive or dead
+     * @param cellColor color of cell
      * @return returns false if row or column are outside the field and true if operation was successful
      */
-    boolean setCellAt(int row, int column, boolean alive) {
+    boolean setCellAt(int row, int column, boolean alive, Color cellColor) {
         if (!isCoordinateInField(row, column))
             return false;
 
         field[row][column].setAlive(alive);
+        field[row][column].setColor(cellColor);
         livingCellsCounter++;
         return true;
     }
@@ -57,8 +62,8 @@ public class GameOfLifeField {
      * @return Returns the cells which got a new life state
      */
     ArrayList<int[]> getNextGeneration() {
-        // add coordinates of cells with a new life state
-        ArrayList<int[]> toggledCells = new ArrayList<>();
+        // contains the positions and colors of cells whose life state needs to be toggled
+        HashMap<int[], Color> cellPositions = new HashMap<>();
 
         // apply rules of game of life
         for (int row = 0; row < HEIGHT; row++)
@@ -66,22 +71,29 @@ public class GameOfLifeField {
                 int neighboursAmount = getAmountLivingNeighbours(row, col);
                 boolean alive = field[row][col].isAlive();
 
-                if (!alive && neighboursAmount == 3) { // bring dead cell to life
-                    toggledCells.add(new int[]{row, col});
+                if (!alive && neighboursAmount == 3) { // dead cell becomes alive
+                    cellPositions.put(new int[]{row, col}, getMostFrequentlyColor(row, col));
                     livingCellsCounter++;
                 } else if (alive && (neighboursAmount < 2 || neighboursAmount > 3)) { // cell dies
-                    toggledCells.add(new int[]{row, col});
+                    cellPositions.put(new int[]{row, col}, GofCell.DEAD_CELL_COLOR);
                     livingCellsCounter--;
                 }
             }
 
-        // change state of cells in field
-        for (int[] coordinate : toggledCells) {
+        // toggle the life state at every cell position in the field
+        for (int[] coordinate : cellPositions.keySet()) {
             GofCell currentCell = field[coordinate[0]][coordinate[1]];
-            currentCell.setAlive(!currentCell.isAlive());
+            // if cell is alive, kill it
+            if (currentCell.isAlive()) {
+                currentCell.setAlive(false);
+                currentCell.setColor(GofCell.DEAD_CELL_COLOR);
+            } else { // if cell is dead, bring it to life
+                currentCell.setAlive(true);
+                currentCell.setColor(cellPositions.get(coordinate));
+            }
         }
 
-        return toggledCells;
+        return new ArrayList<>(cellPositions.keySet());
     }
 
     /**
@@ -96,6 +108,7 @@ public class GameOfLifeField {
                 if (field[row][col].isAlive()) {
                     // ...kill it
                     field[row][col].setAlive(false);
+                    field[row][col].setColor(GofCell.DEAD_CELL_COLOR);
                     killedCells.add(new int[]{row, col});
                 }
             }
@@ -127,6 +140,7 @@ public class GameOfLifeField {
                 if (shouldBeKilled && field[row][col].isAlive()) {
                     // ...kill it
                     field[row][col].setAlive(false);
+                    field[row][col].setColor(GofCell.DEAD_CELL_COLOR);
                     killedCells.add(new int[]{row, col});
                     livingCellsCounter--;
                 }
@@ -154,6 +168,15 @@ public class GameOfLifeField {
         double preciseCoverage = (double) livingCellsCounter / (WIDTH * HEIGHT);
         int temp = (int) (preciseCoverage * 1000.0);
         return ((double) temp) / 10.0;
+    }
+
+    /**
+     * @return the color at the given coordinate. If the coordinate is outside the field, null is returned.
+     */
+    public Color getCellColorAt(int row, int column) {
+        if (!isCoordinateInField(row, column))
+            return null;
+        return field[row][column].getColor();
     }
 
     int getHeight() {
@@ -196,6 +219,39 @@ public class GameOfLifeField {
         if (column >= WIDTH)
             return 0;
         return column;
+    }
+
+    /**
+     * @return The color which occurs most frequently in the 8 cells around the cell
+     * at the given coordinate (row, column). If there are multiple most frequently colors,
+     * one of them is returned.
+     * If all cells surrounding the given cell are dead, null is returned
+     */
+    Color getMostFrequentlyColor(int row, int column) {
+        HashMap<Color, Integer> colorAmount = new HashMap<>();
+
+        for (int i = row - 1; i <= row + 1; i++)
+            for (int k = column - 1; k <= column + 1; k++) {
+                // adapt coordinates if they are outside the field boundaries
+                int currentRow = getNextTorusRow(i);
+                int currentColumn = getNextTorusColumn(k);
+
+                Color currentColor = field[currentRow][currentColumn].getColor();
+                // increase the amount of the current color
+                if (currentColor != GofCell.DEAD_CELL_COLOR)
+                    colorAmount.put(currentColor, colorAmount.getOrDefault(currentColor, 0) + 1);
+            }
+
+        // determine which color occurs most
+        Color mostFrequentlyColor = null;
+        int max = 0;
+        for (Color color : colorAmount.keySet()) {
+            if (colorAmount.get(color) > max) {
+                mostFrequentlyColor = color;
+                max = colorAmount.get(color);
+            }
+        }
+        return mostFrequentlyColor;
     }
 
     int getAmountLivingNeighbours(int row, int column) {

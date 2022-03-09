@@ -46,7 +46,11 @@ public class GameOfLifeController {
                 boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
                 int row = Integer.parseInt(btn.getActionCommand().split(",")[1]);
                 int column = Integer.parseInt(btn.getActionCommand().split(",")[2]);
-                gameOfLife.setCellAt(row, column, !alive);
+                // toggle the life state of the cell
+                if (alive)
+                    gameOfLife.killCellAt(row, column);
+                else
+                    gameOfLife.reviveCellAt(row, column, bottomControlPanel.getCurrentColor());
             }
         });
 

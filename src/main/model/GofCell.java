@@ -6,8 +6,9 @@ import java.awt.*;
  * A class representing a cell in the game of life.
  */
 public class GofCell {
+    public static final Color DEAD_CELL_COLOR = Color.WHITE;
     private boolean alive = false;
-    private Color color = Color.RED;
+    private Color color = DEAD_CELL_COLOR;
 
     /**
      * Bring the cell to life and set its color
