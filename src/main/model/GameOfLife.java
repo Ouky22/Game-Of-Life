@@ -101,6 +101,20 @@ public class GameOfLife implements Observable {
     }
 
     /**
+     * Go to a certain generation with a valid generation number.
+     *
+     * @param generation The number of the generation
+     */
+    public void goToGeneration(int generation) {
+        // 0 and negative numbers are not valid generation numbers.
+        // Going to the current generation does not need any changes.
+        if (generation <= 0 || generation == generationCounter)
+            return;
+
+        // TODO implement logic
+    }
+
+    /**
      * Clear the list of cells which has a new life state since the last time this method was called
      * or, if it is the first call, since the game was started.
      *

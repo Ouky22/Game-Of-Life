@@ -70,4 +70,122 @@ public class GameOfLifeTest {
         // the generation counter should be 1
         assertEquals(1, gof.getGenerationCounter());
     }
+
+    @Test
+    void testGoToGeneration() {
+        GameOfLife gof = new GameOfLife(10, 10);
+        Color cellColor = Color.RED;
+        int[][] odd_figure = {
+                new int[]{2, 2},
+                new int[]{2, 3},
+                new int[]{2, 4}};
+
+        // This creates a repeating pattern, in which two outer cells "rotate" around a middle cell.
+        // Every generation with an odd number has the following pattern (odd_figure):
+        // -------
+        // --OOO--
+        // -------
+
+        int[][] even_figure = {
+                new int[]{1, 3},
+                new int[]{2, 3},
+                new int[]{3, 3}};
+
+        // Every Generation with an even number forms the following pattern (even_figure):
+        // ---O---
+        // ---O---
+        // ---O---
+
+        // bring cells of odd_figure to life
+        for (int[] pos : odd_figure)
+            gof.reviveCellAt(pos[0], pos[1], cellColor);
+
+
+        // going to generation 22 results in the even_figure
+        gof.goToGeneration(22);
+        assertTrue(areGivenCellsAlive(gof, even_figure, cellColor));
+        // and the generation counter should be 22
+        assertEquals(22, gof.getGenerationCounter());
+
+
+        // going back to generation 3 should result in the odd_figure
+        gof.goToGeneration(3);
+        assertTrue(areGivenCellsAlive(gof, odd_figure, cellColor));
+        // and the generation counter should be 3
+        assertEquals(3, gof.getGenerationCounter());
+
+
+        // passing a negative number shouldn't change anything, so the living cells still form the odd_figure
+        gof.goToGeneration(-10);
+        assertTrue(areGivenCellsAlive(gof, odd_figure, cellColor));
+        // and the generation counter should still be 3
+        assertEquals(3, gof.getGenerationCounter());
+
+
+        // because 0 is not a valid generation number, passing it to the gotTo Method shouldn't change anything,
+        // so the living cells still form the odd_figure
+        gof.goToGeneration(0);
+        assertTrue(areGivenCellsAlive(gof, odd_figure, cellColor));
+        assertEquals(3, gof.getGenerationCounter());
+    }
+
+    /**
+     * This is a helper method, which returns true if only the cells at the given positions
+     * are alive in the given field and have the given color.
+     *
+     * @param gof       The GameOfLifeField instance
+     * @param positions The positions of cells that should be alive
+     * @param color     What color the living cells should have.
+     * @return true if only the cells at the given positions are alive and have the given color
+     */
+    private boolean areGivenCellsAlive(GameOfLife gof, int[][] positions, Color color) {
+        for (int row = 0; row < gof.getFieldHeight(); row++) {
+            for (int col = 0; col < gof.getFieldWidth(); col++) {
+                Color currentCellColor = GofCell.DEAD_CELL_COLOR;
+
+                // if the current cell position is one of the given positions, set the current color to the given color
+                for (int[] pos : positions)
+                    if (Arrays.equals(pos, new int[]{row, col})) {
+                        currentCellColor = color;
+                        break;
+                    }
+                // the currentCellColor should match the color at the current position
+                if (currentCellColor != gof.getCellColorAt(row, col))
+                    return false;
+            }
+        }
+        return true;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
