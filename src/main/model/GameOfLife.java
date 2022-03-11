@@ -112,15 +112,6 @@ public class GameOfLife implements Observable {
         return copy;
     }
 
-    /**
-     * Reset the generation counter to 1.
-     * Will notify the registered observers.
-     */
-    public void resetGenerationCounter() {
-        generationCounter = 1;
-        notifyObservers();
-    }
-
     public int getGenerationCounter() {
         return generationCounter;
     }
@@ -169,6 +160,15 @@ public class GameOfLife implements Observable {
         }
 
         cellsToBeUpdated.add(new int[]{row, column});
+        notifyObservers();
+    }
+
+    /**
+     * Reset the generation counter to 1.
+     * Will notify the registered observers.
+     */
+    private void resetGenerationCounter() {
+        generationCounter = 1;
         notifyObservers();
     }
 
