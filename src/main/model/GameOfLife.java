@@ -40,14 +40,32 @@ public class GameOfLife implements Observable {
      * Brings a cell at the given coordinate to life and its color is set to the given one.
      */
     public void reviveCellAt(int row, int column, Color cellColor) {
-        setCellAt(row, column, true, cellColor);
+        // if the coordinate is outside the field, return
+        if (!gameOfLifeField.setCellAt(row, column, true, cellColor))
+            return;
+
+        // if the current generation is the first generation, the container of first generation cells
+        // must be updated accordingly the new life state of the cell
+        updateFirstGeneration(row, column);
+
+        cellsToBeUpdated.add(gameOfLifeField.getCellAt(row, column));
+        notifyObservers();
     }
 
     /**
      * Kills a cell at the given coordinate and its color is set to the default color of dead cells.
      */
     public void killCellAt(int row, int column) {
-        setCellAt(row, column, false, GofCell.DEAD_CELL_COLOR);
+        // if the coordinate is outside the field, return
+        if (!gameOfLifeField.setCellAt(row, column, false, GofCell.DEAD_CELL_COLOR))
+            return;
+
+        // if the current generation is the first generation, the container of first generation cells
+        // must be updated accordingly the new life state of the cell
+        updateFirstGeneration(row, column);
+
+        cellsToBeUpdated.add(gameOfLifeField.getCellAt(row, column));
+        notifyObservers();
     }
 
     /**
@@ -129,31 +147,25 @@ public class GameOfLife implements Observable {
     }
 
     /**
-     * Set the life state and the color of one cell in the field at the given coordinate (row, column).
-     * If it is the first generation, the container containing the cells of the first generation will be updated.
-     * The registered observers get notified.
+     * Updates the container that contains all the cells of the first generation if the current generation
+     * is the first generation.
      *
-     * @param row       row of the cell
-     * @param column    column of the cell
-     * @param cellColor color of cell
-     * @param alive     whether the cell should be alive or dead
+     * @param row    row of the cell which got a new life state
+     * @param column column of the cell which got a new life state
      */
-    private void setCellAt(int row, int column, boolean alive, Color cellColor) {
-        // if the coordinate is outside the field, return
-        if (!gameOfLifeField.setCellAt(row, column, alive, cellColor))
+    private void updateFirstGeneration(int row, int column) {
+        // if it is not the first generation, the container for the first generation cells does not need to be updated
+        if (generationCounter != 1)
             return;
 
-        // if it is the first generation, is has to be updated
-        if (generationCounter == 1) {
-            // if cell was brought to life, add it to the first generation
-            if (alive)
-                firstGeneration.put(gameOfLifeField.getCellAt(row, column), gameOfLifeField.getCellColorAt(row, column));
-            else // otherwise, the cell got killed and should be removed from the first generation
-                firstGeneration.remove(gameOfLifeField.getCellAt(row, column));
-        }
+        // the cell which got a new life state
+        GofCell cell = gameOfLifeField.getCellAt(row, column);
 
-        cellsToBeUpdated.add(gameOfLifeField.getCellAt(row, column));
-        notifyObservers();
+        // if the cell is alive, add it to the first generation
+        if (cell.isAlive())
+            firstGeneration.put(cell, cell.getColor());
+        else // otherwise, the cell got killed and should be removed from the first generation (if it was in the first generation)
+            firstGeneration.remove(cell);
     }
 
     /**
