@@ -112,39 +112,6 @@ public class GameOfLifeField {
     }
 
     /**
-     * Kills all cells in the field except the given cells.
-     *
-     * @param sparedCells Cells that should not be killed
-     */
-    ArrayList<GofCell> killAllCellsExceptOf(ArrayList<GofCell> sparedCells) {
-        ArrayList<GofCell> killedCells = new ArrayList<>();
-
-        for (GofCell[] cellRow : field)
-            for (GofCell cell : cellRow) {
-                boolean shouldBeKilled = true;
-
-                // check if the current position matches one of the positions of the cells which
-                // should not be killed
-                for (GofCell sparedCell : sparedCells)
-                    if (sparedCell == cell) {
-                        shouldBeKilled = false;
-                        break;
-                    }
-
-
-                // if cell should be killed and is alive
-                if (shouldBeKilled && cell.isAlive()) {
-                    // ...kill it
-                    cell.killCell();
-                    killedCells.add(cell);
-                    livingCellsCounter--;
-                }
-            }
-
-        return killedCells;
-    }
-
-    /**
      * @return What percentage of the field is living cells. The value is rounded to one decimal place.
      */
     public double getLivingCellsCoverage() {

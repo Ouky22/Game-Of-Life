@@ -86,7 +86,7 @@ public class TopControlPanel extends JPanel implements Observer {
         // add JPanel, which contains JLabel and JTextField for "go to" functionality
         JPanel goToPanel = new JPanel();
         JLabel goToLabel = new JLabel("Go to: ");
-        goToLabel.setToolTipText("Go to certain generation");
+        goToLabel.setToolTipText("Go to certain generation (starting from first generation");
         goToPanel.add(goToLabel);
         goToPanel.add(goToTextField = new JTextField("", 3));
         this.add(goToPanel);
@@ -120,6 +120,12 @@ public class TopControlPanel extends JPanel implements Observer {
     public void addDelaySliderChangeListener(ChangeListener a) {
         delaySlider.addChangeListener(a);
     }
+
+    public void addGotToTextFieldActionListener(ActionListener a) {
+        goToTextField.addActionListener(a);
+    }
+
+    public void addPreviousGenerationButtonActionListener(ActionListener a) {previousGenerationButton.addActionListener(a);}
 
     @Override
     public void update() {
