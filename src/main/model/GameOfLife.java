@@ -14,18 +14,16 @@ public class GameOfLife implements Observable {
     private final ArrayList<Observer> observers = new ArrayList<>();
 
     /*
-     * List which contains the positions of cells that have a new life state.
+     * List which contains the cells that have a new life state.
      * This list is passed to the observers for them to update their view.
      * After that this list will be emptied.
      */
-    private final ArrayList<int[]> cellsToBeUpdated = new ArrayList<>();
+    private final ArrayList<GofCell> cellsToBeUpdated = new ArrayList<>();
 
-    /* contains the coordinates and colors of the living cells of the first generation.
-     The coordinate is stored as a string in the following form: "row.column"
-     This makes sure each coordinate does only occur at most once in this HashMap.
-     To use the string coordinate, it has to be converted into numeric values (such methods are provided in this class)
+    /*
+    Contains the cells that were alive in the first generation and the color they had in the first generation
     */
-    private final HashMap<String, Color> firstGeneration = new HashMap<>();
+    private final HashMap<GofCell, Color> firstGeneration = new HashMap<>();
 
 
     /**
@@ -46,7 +44,7 @@ public class GameOfLife implements Observable {
     }
 
     /**
-     * Kills a cell at the given coordinate and its color is set to the color of dead cells.
+     * Kills a cell at the given coordinate and its color is set to the default color of dead cells.
      */
     public void killCellAt(int row, int column) {
         setCellAt(row, column, false, GofCell.DEAD_CELL_COLOR);
@@ -59,18 +57,13 @@ public class GameOfLife implements Observable {
      */
     public void resetToFirstGeneration() {
         // kill all cells that are not first generation cells.
-        // Save them in a list containing all cells which have a new life state.
-        ArrayList<int[]> firstGenCellsPositions = new ArrayList<>();
-        for (String stringCoordinate : firstGeneration.keySet())
-            firstGenCellsPositions.add(getCoordinateAsArray(stringCoordinate));
-        ArrayList<int[]> toggledCells = gameOfLifeField.killAllCellsExceptOf(firstGenCellsPositions);
+        ArrayList<GofCell> toggledCells = gameOfLifeField.killAllCellsExceptOf(new ArrayList<>(firstGeneration.keySet()));
 
         // if a cell from the first generation is not alive, bring it back to life
-        for (String stringCoordinate : firstGeneration.keySet()) {
-            int[] coordinate = getCoordinateAsArray(stringCoordinate);
-            if (!gameOfLifeField.isCellAliveAt(coordinate)) {
-                gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true, firstGeneration.get(stringCoordinate));
-                toggledCells.add(coordinate);
+        for (GofCell firstGenCell : firstGeneration.keySet()) {
+            if (!firstGenCell.isAlive()) {
+                gameOfLifeField.setCellAt(firstGenCell.getRow(), firstGenCell.getColumn(), true, firstGeneration.get(firstGenCell));
+                toggledCells.add(firstGenCell);
             }
         }
 
@@ -106,8 +99,8 @@ public class GameOfLife implements Observable {
      *
      * @return The positions of cells which got a new life state.
      */
-    public ArrayList<int[]> clearCellsToBeUpdated() {
-        final ArrayList<int[]> copy = new ArrayList<>(cellsToBeUpdated);
+    public ArrayList<GofCell> clearCellsToBeUpdated() {
+        final ArrayList<GofCell> copy = new ArrayList<>(cellsToBeUpdated);
         cellsToBeUpdated.clear();
         return copy;
     }
@@ -154,12 +147,12 @@ public class GameOfLife implements Observable {
         if (generationCounter == 1) {
             // if cell was brought to life, add it to the first generation
             if (alive)
-                firstGeneration.put(getCoordinateAsString(new int[]{row, column}), cellColor);
+                firstGeneration.put(gameOfLifeField.getCellAt(row, column), gameOfLifeField.getCellColorAt(row, column));
             else // otherwise, the cell got killed and should be removed from the first generation
-                firstGeneration.remove(getCoordinateAsString(new int[]{row, column}));
+                firstGeneration.remove(gameOfLifeField.getCellAt(row, column));
         }
 
-        cellsToBeUpdated.add(new int[]{row, column});
+        cellsToBeUpdated.add(gameOfLifeField.getCellAt(row, column));
         notifyObservers();
     }
 
@@ -170,28 +163,6 @@ public class GameOfLife implements Observable {
     private void resetGenerationCounter() {
         generationCounter = 1;
         notifyObservers();
-    }
-
-    /**
-     * @param stringCoordinate string coordinate in following form: "row.column".
-     * @return the array coordinate extracted from the string coordinate
-     */
-    private int[] getCoordinateAsArray(String stringCoordinate) {
-        int[] coordinate = new int[2];
-        for (int i = 0; i < 2; i++)
-            coordinate[i] = Integer.parseInt(stringCoordinate.split("\\.")[i]);
-        return coordinate;
-    }
-
-    /**
-     * @param arrayCoordinate coordinate as int array with length of 2 containing the row and column
-     * @return the string coordinate extracted from the array coordinate
-     */
-    private String getCoordinateAsString(int[] arrayCoordinate) {
-        StringBuilder stringCoordinate = new StringBuilder();
-        for (int i = 0; i < 2; i++)
-            stringCoordinate.append(arrayCoordinate[i]).append(".");
-        return stringCoordinate.toString();
     }
 
     @Override

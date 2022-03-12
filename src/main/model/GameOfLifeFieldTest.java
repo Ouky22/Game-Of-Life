@@ -169,39 +169,40 @@ public class GameOfLifeFieldTest {
         int height = 10;
         GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
 
-        // bring cells to life...
-        ArrayList<int[]> sparedCells = new ArrayList<>();
-        sparedCells.add(new int[]{0, 0});
-        sparedCells.add(new int[]{height - 1, width - 1});
-        int[][] cellsToBeKilled = {{5, 5}, {0, width - 1}};
-        for (int[] coordinate : sparedCells)
-            gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true, TEST_COLOR);
-        for (int[] coordinate : cellsToBeKilled)
-            gameOfLifeField.setCellAt(coordinate[0], coordinate[1], true, TEST_COLOR);
+        // bring spared cells to life
+        ArrayList<GofCell> sparedCells = new ArrayList<>();
+        sparedCells.add(gameOfLifeField.getCellAt(0, 0));
+        sparedCells.add(gameOfLifeField.getCellAt(height - 1, width - 1));
+        for (GofCell cell : sparedCells)
+            gameOfLifeField.setCellAt(cell.getRow(), cell.getColumn(), true, TEST_COLOR);
+        // bring some other cells to life
+        gameOfLifeField.setCellAt(5, 5, true, TEST_COLOR);
+        gameOfLifeField.setCellAt(0, width - 1, true, TEST_COLOR);
 
-        // ...and kill them except of the spared cells
+        // ...and kill all cells except of the spared cells
         gameOfLifeField.killAllCellsExceptOf(sparedCells);
 
         // so all cells of the field except of the spared cells should be dead
-        for (int row = 0; row < gameOfLifeField.getField().length; row++)
-            for (int col = 0; col < gameOfLifeField.getField()[row].length; col++) {
-                // determine if the current cell is a cell that should have been spared or killed
-                boolean isSparedCellPosition = false;
-                for (int[] sparedCellPos : sparedCells)
-                    if (Arrays.equals(sparedCellPos, new int[]{row, col})) {
-                        isSparedCellPosition = true;
+        for (GofCell[] cellRow : gameOfLifeField.getField()) {
+            for (GofCell cell : cellRow) {
+                // determine whether the current cell is a cell that should have been spared or killed
+                boolean isSparedCell = false;
+                for (GofCell sparedCell : sparedCells)
+                    if (sparedCell == cell) {
+                        isSparedCell = true;
                         break;
                     }
 
                 // if cell should have been spared, it should be still alive and the color should be TEST_COLOR...
-                if (isSparedCellPosition) {
-                    assertTrue(gameOfLifeField.getField()[row][col].isAlive());
-                    assertEquals(TEST_COLOR, gameOfLifeField.getField()[row][col].getColor());
+                if (isSparedCell) {
+                    assertTrue(cell.isAlive());
+                    assertEquals(TEST_COLOR, cell.getColor());
                 } else { // ...otherwise it should be dead and the color should be DEAD_CELL_COLOR
-                    assertFalse(gameOfLifeField.getField()[row][col].isAlive());
-                    assertEquals(GofCell.DEAD_CELL_COLOR, gameOfLifeField.getField()[row][col].getColor());
+                    assertFalse(cell.isAlive());
+                    assertEquals(GofCell.DEAD_CELL_COLOR, cell.getColor());
                 }
             }
+        }
     }
 
     @Test
@@ -245,9 +246,9 @@ public class GameOfLifeFieldTest {
         assertEquals(16.5, field.getLivingCellsCoverage());
 
         // kill all cells except of 2 cells
-        ArrayList<int[]> sparedCells = new ArrayList<>();
-        sparedCells.add(new int[]{0, 0});
-        sparedCells.add(new int[]{0, 5});
+        ArrayList<GofCell> sparedCells = new ArrayList<>();
+        sparedCells.add(field.getCellAt(0, 0));
+        sparedCells.add(field.getCellAt(0, 5));
         field.killAllCellsExceptOf(sparedCells);
         // so the coverage must be 2 / 121, which is about 0.016 = 1.6 %
         assertEquals(1.6, field.getLivingCellsCoverage());

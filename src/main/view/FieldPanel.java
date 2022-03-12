@@ -55,16 +55,14 @@ public class FieldPanel extends JPanel implements Observer {
     @Override
     public void update() {
         // get the positions of the cells which got a new life state and update field panel
-        for (int[] position : gameOfLife.clearCellsToBeUpdated()) {
-            int row = position[0];
-            int col = position[1];
-            JButton btn = jButtons[row][col];
+        for (GofCell cell : gameOfLife.clearCellsToBeUpdated()) {
+            JButton btn = jButtons[cell.getRow()][cell.getColumn()];
 
-            btn.setBackground(gameOfLife.getCellColorAt(row, col));
+            btn.setBackground(cell.getColor());
 
             // toggle life state in the action command of the button
             boolean alive = btn.getActionCommand().split(",")[0].equals("alive");
-            btn.setActionCommand(createActionCommandString(row, col, !alive));
+            btn.setActionCommand(createActionCommandString(cell.getRow(), cell.getColumn(), !alive));
         }
     }
 }

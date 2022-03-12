@@ -2,7 +2,6 @@ package main.model;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -30,7 +29,7 @@ public class GameOfLifeField {
         field = new GofCell[height][width];
         for (int row = 0; row < field.length; row++)
             for (int col = 0; col < field[row].length; col++)
-                field[row][col] = new GofCell();
+                field[row][col] = new GofCell(row, col);
 
         WIDTH = width;
         HEIGHT = height;
@@ -50,8 +49,7 @@ public class GameOfLifeField {
         if (!isCoordinateInField(row, column))
             return false;
 
-        field[row][column].setAlive(alive);
-        field[row][column].setColor(cellColor);
+        field[row][column].set(alive, cellColor);
         livingCellsCounter++;
         return true;
     }
@@ -59,37 +57,33 @@ public class GameOfLifeField {
     /**
      * Loads the next generation of the game of life.
      *
-     * @return Returns the cells which got a new life state
+     * @return the cells which got a new life state
      */
-    ArrayList<int[]> getNextGeneration() {
+    ArrayList<GofCell> getNextGeneration() {
         // contains the positions and colors of cells whose life state needs to be toggled
-        HashMap<int[], Color> cellPositions = new HashMap<>();
+        HashMap<GofCell, Color> cellPositions = new HashMap<>();
 
         // apply rules of game of life
-        for (int row = 0; row < HEIGHT; row++)
-            for (int col = 0; col < WIDTH; col++) {
-                int neighboursAmount = getAmountLivingNeighbours(row, col);
-                boolean alive = field[row][col].isAlive();
+        for (GofCell[] cellRow : field)
+            for (GofCell cell : cellRow) {
+                int neighboursAmount = getAmountLivingNeighbours(cell.getRow(), cell.getColumn());
 
-                if (!alive && neighboursAmount == 3) { // dead cell becomes alive
-                    cellPositions.put(new int[]{row, col}, getMostFrequentlyColor(row, col));
+                if (!cell.isAlive() && neighboursAmount == 3) { // dead cell becomes alive
+                    cellPositions.put(cell, getMostFrequentlyColor(cell.getRow(), cell.getColumn()));
                     livingCellsCounter++;
-                } else if (alive && (neighboursAmount < 2 || neighboursAmount > 3)) { // cell dies
-                    cellPositions.put(new int[]{row, col}, GofCell.DEAD_CELL_COLOR);
+                } else if (cell.isAlive() && (neighboursAmount < 2 || neighboursAmount > 3)) { // cell dies
+                    cellPositions.put(cell, GofCell.DEAD_CELL_COLOR);
                     livingCellsCounter--;
                 }
             }
 
         // toggle the life state at every cell position in the field
-        for (int[] coordinate : cellPositions.keySet()) {
-            GofCell currentCell = field[coordinate[0]][coordinate[1]];
+        for (GofCell cell : cellPositions.keySet()) {
             // if cell is alive, kill it
-            if (currentCell.isAlive()) {
-                currentCell.setAlive(false);
-                currentCell.setColor(GofCell.DEAD_CELL_COLOR);
-            } else { // if cell is dead, bring it to life
-                currentCell.setAlive(true);
-                currentCell.setColor(cellPositions.get(coordinate));
+            if (cell.isAlive()) {
+                cell.killCell();
+            } else { // if cell is dead, bring it to life and set its (new) color
+                cell.set(true, cellPositions.get(cell));
             }
         }
 
@@ -98,18 +92,19 @@ public class GameOfLifeField {
 
     /**
      * Kills all cells in the field.
+     *
+     * @return the cells which got a new life state
      */
-    ArrayList<int[]> killAllCells() {
-        ArrayList<int[]> killedCells = new ArrayList<>();
+    ArrayList<GofCell> killAllCells() {
+        ArrayList<GofCell> killedCells = new ArrayList<>();
 
-        for (int row = 0; row < field.length; row++)
-            for (int col = 0; col < field[row].length; col++) {
+        for (GofCell[] cellRow : field)
+            for (GofCell cell : cellRow) {
                 // if cell is alive...
-                if (field[row][col].isAlive()) {
+                if (cell.isAlive()) {
                     // ...kill it
-                    field[row][col].setAlive(false);
-                    field[row][col].setColor(GofCell.DEAD_CELL_COLOR);
-                    killedCells.add(new int[]{row, col});
+                    cell.killCell();
+                    killedCells.add(cell);
                 }
             }
         livingCellsCounter = 0;
@@ -117,48 +112,36 @@ public class GameOfLifeField {
     }
 
     /**
-     * Kills all cells in the field except at the given coordinates (row, column).
+     * Kills all cells in the field except the given cells.
      *
-     * @param cellPositions coordinates (row, column) of cells that should not be killed
+     * @param sparedCells Cells that should not be killed
      */
-    ArrayList<int[]> killAllCellsExceptOf(ArrayList<int[]> cellPositions) {
-        ArrayList<int[]> killedCells = new ArrayList<>();
+    ArrayList<GofCell> killAllCellsExceptOf(ArrayList<GofCell> sparedCells) {
+        ArrayList<GofCell> killedCells = new ArrayList<>();
 
-        for (int row = 0; row < field.length; row++)
-            for (int col = 0; col < field[row].length; col++) {
+        for (GofCell[] cellRow : field)
+            for (GofCell cell : cellRow) {
                 boolean shouldBeKilled = true;
 
                 // check if the current position matches one of the positions of the cells which
                 // should not be killed
-                for (int[] sparedCellPos : cellPositions)
-                    if (Arrays.equals(sparedCellPos, new int[]{row, col})) {
+                for (GofCell sparedCell : sparedCells)
+                    if (sparedCell == cell) {
                         shouldBeKilled = false;
                         break;
                     }
 
+
                 // if cell should be killed and is alive
-                if (shouldBeKilled && field[row][col].isAlive()) {
+                if (shouldBeKilled && cell.isAlive()) {
                     // ...kill it
-                    field[row][col].setAlive(false);
-                    field[row][col].setColor(GofCell.DEAD_CELL_COLOR);
-                    killedCells.add(new int[]{row, col});
+                    cell.killCell();
+                    killedCells.add(cell);
                     livingCellsCounter--;
                 }
             }
 
         return killedCells;
-    }
-
-    /**
-     * Check if cell at given coordinate is alive
-     *
-     * @param coordinate of the cell
-     * @return whether the cell is alive or dead
-     */
-    boolean isCellAliveAt(int[] coordinate) {
-        int row = coordinate[0];
-        int column = coordinate[1];
-        return field[row][column].isAlive();
     }
 
     /**
@@ -171,12 +154,21 @@ public class GameOfLifeField {
     }
 
     /**
-     * @return the color at the given coordinate. If the coordinate is outside the field, null is returned.
+     * @return the color at the given coordinate. Returns null if the coordinate is outside the field
      */
     public Color getCellColorAt(int row, int column) {
         if (!isCoordinateInField(row, column))
             return null;
         return field[row][column].getColor();
+    }
+
+    /**
+     * @return the cell at the given coordinate. Returns null if the coordinate is outside the field
+     */
+    public GofCell getCellAt(int row, int column) {
+        if (!isCoordinateInField(row, column))
+            return null;
+        return field[row][column];
     }
 
     int getHeight() {
