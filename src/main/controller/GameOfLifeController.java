@@ -100,6 +100,22 @@ public class GameOfLifeController {
             }
         });
 
+        // go to textField
+        topControlPanel.addGotToTextFieldActionListener((e) -> {
+            if (e.getSource() instanceof JTextField textField) {
+                try {
+                    gameOfLife.goToGeneration(Integer.parseInt(textField.getText()));
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, JOptionPane.ERROR_MESSAGE, "Ungültige Eingabe", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        //
+        topControlPanel.addPreviousGenerationButtonActionListener((e) -> {
+            gameOfLife.goToGeneration(gameOfLife.getGenerationCounter() - 1);
+        });
+
         mainFrame.setVisible(true);
     }
 
