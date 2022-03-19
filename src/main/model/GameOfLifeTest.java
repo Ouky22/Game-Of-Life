@@ -75,26 +75,27 @@ public class GameOfLifeTest {
     void testGoToGeneration() {
         GameOfLife gof = new GameOfLife(10, 10);
         Color cellColor = Color.RED;
+
         int[][] odd_figure = {
                 new int[]{2, 2},
                 new int[]{2, 3},
                 new int[]{2, 4}};
-
         // This creates a repeating pattern, in which two outer cells "rotate" around a middle cell.
         // Every generation with an odd number has the following pattern (odd_figure):
         // -------
         // --OOO--
         // -------
 
+
         int[][] even_figure = {
                 new int[]{1, 3},
                 new int[]{2, 3},
                 new int[]{3, 3}};
-
         // Every Generation with an even number forms the following pattern (even_figure):
         // ---O---
         // ---O---
         // ---O---
+
 
         // bring cells of odd_figure to life
         for (int[] pos : odd_figure)
@@ -129,6 +130,54 @@ public class GameOfLifeTest {
         assertEquals(3, gof.getGenerationCounter());
     }
 
+    @Test
+    void testManualManipulations() {
+        GameOfLife gof = new GameOfLife(10, 10);
+        Color cellColor = Color.RED;
+
+        int[][] odd_figure = {
+                new int[]{2, 2},
+                new int[]{2, 3},
+                new int[]{2, 4}};
+        // This creates a repeating pattern, in which two outer cells "rotate" around a middle cell.
+        // Every generation with an odd number has the following pattern (odd_figure):
+        // -------
+        // --OOO--
+        // -------
+
+        // bring cells of odd_figure to life
+        for (int[] pos : odd_figure)
+            gof.reviveCellAt(pos[0], pos[1], cellColor);
+
+        // go to the third generation (which forms odd_figure) and simulate a manual change on a cell,
+        // so that this figure is created:
+        // ---O--- this cell is revived in yellow
+        // --OOO--
+        // -------
+        gof.loadNextGeneration();
+        gof.loadNextGeneration();
+        gof.reviveCellAt(1, 3, Color.YELLOW);
+
+        // this leads to this figure in the 4th generation:
+        // --OOO-- only the middle cell is yellow
+        // --OOO--
+        // ---O---
+        gof.loadNextGeneration();
+
+        // going back to the second generation and then going to the third generation should bring the cell
+        // brought to life manually in yellow back to life
+        gof.goToGeneration(2);
+        gof.goToGeneration(3);
+        assertEquals(gof.getCellColorAt(1, 3), Color.YELLOW);
+
+        // going to generation 4 leads to the figure from generation 4
+        gof.loadNextGeneration();
+        // check if the top row of cells has the following colors: red, yellow and red
+        assertEquals(gof.getCellColorAt(1,2), Color.RED);
+        assertEquals(gof.getCellColorAt(1,3), Color.YELLOW);
+        assertEquals(gof.getCellColorAt(1,4), Color.RED);
+    }
+
     /**
      * This is a helper method, which returns true if only the cells at the given positions
      * are alive in the given field and have the given color.
@@ -157,3 +206,23 @@ public class GameOfLifeTest {
         return true;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

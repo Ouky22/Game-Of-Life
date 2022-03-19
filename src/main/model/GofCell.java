@@ -5,7 +5,7 @@ import java.awt.*;
 /**
  * A class representing a cell in the game of life.
  */
-public class GofCell {
+public class GofCell implements Cloneable {
     public static final Color DEAD_CELL_COLOR = Color.WHITE;
 
     private boolean alive = false;
@@ -58,5 +58,18 @@ public class GofCell {
 
     public int getColumn() {
         return column;
+    }
+
+    public int[] getCoordinate() {
+        return new int[]{row, column};
+    }
+
+    @Override
+    public GofCell clone() {
+        try {
+            return (GofCell) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

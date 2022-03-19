@@ -4,6 +4,7 @@ import main.view.Observer;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class GameOfLife implements Observable {
@@ -20,11 +21,15 @@ public class GameOfLife implements Observable {
      */
     private final ArrayList<GofCell> cellsToBeUpdated = new ArrayList<>();
 
-    /*
-    Contains the cells that were alive in the first generation and the color they had in the first generation
-    */
-    private final HashMap<GofCell, Color> firstGeneration = new HashMap<>();
-
+    /**
+     * This HashMap contains all manipulations made by the user (revive/kill cell and set cell color) in each generation
+     * (if there is no manipulation in a generation, then its generation number is not a key of this HashMap).
+     * If there is manipulation, this HashMap saves copies of the manipulated cells,
+     * which represent their state in the generation in which they got manipulated.
+     * key -> generation number
+     * value -> copies of cells which were manipulated by the user
+     */
+    private final HashMap<Integer, ArrayList<GofCell>> manipulatedCells = new HashMap<>();
 
     /**
      * Create a gameOfLife.
@@ -44,9 +49,7 @@ public class GameOfLife implements Observable {
         if (!gameOfLifeField.setCellAt(row, column, true, cellColor))
             return;
 
-        // if the current generation is the first generation, the container of first generation cells
-        // must be updated accordingly the new life state of the cell
-        updateFirstGeneration(row, column);
+        updateManipulatedCells(row, column);
 
         cellsToBeUpdated.add(gameOfLifeField.getCellAt(row, column));
         notifyObservers();
@@ -60,9 +63,7 @@ public class GameOfLife implements Observable {
         if (!gameOfLifeField.setCellAt(row, column, false, GofCell.DEAD_CELL_COLOR))
             return;
 
-        // if the current generation is the first generation, the container of first generation cells
-        // must be updated accordingly the new life state of the cell
-        updateFirstGeneration(row, column);
+        updateManipulatedCells(row, column);
 
         cellsToBeUpdated.add(gameOfLifeField.getCellAt(row, column));
         notifyObservers();
@@ -77,9 +78,10 @@ public class GameOfLife implements Observable {
         // kill all cells
         ArrayList<GofCell> toggledCells = gameOfLifeField.killAllCells();
 
-        // bring the cells from the first generation with the right color back to life
-        for (GofCell firstGenCell : firstGeneration.keySet()) {
-            gameOfLifeField.setCellAt(firstGenCell.getRow(), firstGenCell.getColumn(), true, firstGeneration.get(firstGenCell));
+        // get the manipulated cells of the first generation (the cells which were brought to life)
+        // and bring them to life
+        for (GofCell firstGenCell : manipulatedCells.get(1)) {
+            gameOfLifeField.setCellAt(firstGenCell.getRow(), firstGenCell.getColumn(), firstGenCell.isAlive(), firstGenCell.getColor());
             toggledCells.add(firstGenCell);
         }
 
@@ -93,7 +95,7 @@ public class GameOfLife implements Observable {
      * Notifies the registered observers.
      */
     public void resetGameOfLife() {
-        firstGeneration.clear();
+        manipulatedCells.clear();
         resetGenerationCounter();
         cellsToBeUpdated.addAll(gameOfLifeField.killAllCells());
         notifyObservers();
@@ -106,6 +108,13 @@ public class GameOfLife implements Observable {
     public void loadNextGeneration() {
         cellsToBeUpdated.addAll(gameOfLifeField.getNextGeneration());
         generationCounter++;
+
+        // if there are manipulations saved in manipulatedCells for this generation, apply them to this generation
+        if (manipulatedCells.get(generationCounter) != null)
+            for (GofCell cell : manipulatedCells.get(generationCounter)) {
+                gameOfLifeField.setCellAt(cell.getRow(), cell.getColumn(), cell.isAlive(), cell.getColor());
+                cellsToBeUpdated.add(cell);
+            }
         notifyObservers();
     }
 
@@ -128,12 +137,16 @@ public class GameOfLife implements Observable {
         else // if the generation comes before the current generation, reset the game of life
             resetToFirstGeneration();
 
-
         // load all following generations starting with the startIndex
         for (int i = startIndex; i < generation; i++) {
-            ArrayList<GofCell> tempToggledCells = new ArrayList<>(gameOfLifeField.getNextGeneration());
-            cellsToBeUpdated.addAll(tempToggledCells);
+            cellsToBeUpdated.addAll(gameOfLifeField.getNextGeneration());
             generationCounter++;
+            // if there are manipulations saved in manipulatedCells for this generation, apply them to this generation
+            if (manipulatedCells.get(generationCounter) != null)
+                for (GofCell cell : manipulatedCells.get(generationCounter)) {
+                    gameOfLifeField.setCellAt(cell.getRow(), cell.getColumn(), cell.isAlive(), cell.getColor());
+                    cellsToBeUpdated.add(cell);
+                }
         }
 
         notifyObservers();
@@ -175,25 +188,21 @@ public class GameOfLife implements Observable {
     }
 
     /**
-     * Updates the container that contains all the cells of the first generation if the current generation
-     * is the first generation.
+     * Updates the container that contains all cells manipulated by the user in each generation.
      *
      * @param row    row of the cell which got a new life state
      * @param column column of the cell which got a new life state
      */
-    private void updateFirstGeneration(int row, int column) {
-        // if it is not the first generation, the container for the first generation cells does not need to be updated
-        if (generationCounter != 1)
-            return;
+    private void updateManipulatedCells(int row, int column) {
+        // create a copy of the cell which got manipulated
+        GofCell manipulatedCellCopy = gameOfLifeField.getCellAt(row, column).clone();
 
-        // the cell which got a new life state
-        GofCell cell = gameOfLifeField.getCellAt(row, column);
-
-        // if the cell is alive, add it to the first generation
-        if (cell.isAlive())
-            firstGeneration.put(cell, cell.getColor());
-        else // otherwise, the cell got killed and should be removed from the first generation (if it was in the first generation)
-            firstGeneration.remove(cell);
+        // get the list of manipulations related to the current generation.
+        // If there is no list related to the current generation number or the current generation number is not present
+        // as a key inside manipulatedCells, generate a list for the current generation number
+        // and use it to initialize a local variable.
+        ArrayList<GofCell> manipulations = manipulatedCells.computeIfAbsent(generationCounter, k -> new ArrayList<>());
+        manipulations.add(manipulatedCellCopy);
     }
 
     /**
@@ -221,3 +230,23 @@ public class GameOfLife implements Observable {
             o.update();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
