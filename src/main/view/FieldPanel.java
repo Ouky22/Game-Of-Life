@@ -13,15 +13,8 @@ import java.awt.event.ActionListener;
  */
 public class FieldPanel extends JPanel implements Observer {
     private final JButton[][] jButtons;
-    private final GameOfLife gameOfLife;
 
-    public FieldPanel(GameOfLife gameOfLife) {
-        this.gameOfLife = gameOfLife;
-        gameOfLife.register(this);
-
-        int rows = gameOfLife.getFieldHeight();
-        int columns = gameOfLife.getFieldWidth();
-
+    public FieldPanel(int rows, int columns) {
         this.setLayout(new GridLayout(rows, columns));
 
         jButtons = new JButton[rows][columns];
@@ -53,7 +46,7 @@ public class FieldPanel extends JPanel implements Observer {
     }
 
     @Override
-    public void update() {
+    public void update(GameOfLife gameOfLife) {
         // get the positions of the cells which got a new life state and update field panel
         for (GofCell cell : gameOfLife.clearCellsToBeUpdated()) {
             JButton btn = jButtons[cell.getRow()][cell.getColumn()];

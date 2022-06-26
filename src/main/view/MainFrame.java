@@ -15,14 +15,14 @@ public class MainFrame extends JFrame {
     private final TopControlPanel topControlPanel;
     private final BottomControlPanel bottomControlPanel;
 
-    public MainFrame(GameOfLife gameOfLife) {
+    public MainFrame(int fieldRows, int fieldColumns) {
         this.setLayout(new BorderLayout());
 
         // add fieldPanel, which displays the gameOfLive field
-        this.add(fieldPanel = new FieldPanel(gameOfLife), BorderLayout.CENTER);
+        this.add(fieldPanel = new FieldPanel(fieldRows, fieldColumns), BorderLayout.CENTER);
 
         // add topControlPanel, which is for adjusting the game of life
-        this.add(topControlPanel = new TopControlPanel(gameOfLife), BorderLayout.NORTH);
+        this.add(topControlPanel = new TopControlPanel(), BorderLayout.NORTH);
 
         // add bottomControlPanel, which is for adjusting the game of life
         this.add(bottomControlPanel = new BottomControlPanel(), BorderLayout.SOUTH);

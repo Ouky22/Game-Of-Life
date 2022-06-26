@@ -24,8 +24,8 @@ public class GameOfLifeController {
     private final Timer timer;
 
 
-    public GameOfLifeController(GameOfLife gof, MainFrame frame) {
-        this.gameOfLife = gof;
+    public GameOfLifeController(GameOfLife gol, MainFrame frame) {
+        this.gameOfLife = gol;
         this.mainFrame = frame;
         this.fieldPanel = frame.getFieldPanel();
         this.topControlPanel = frame.getTopControlPanel();
@@ -34,7 +34,9 @@ public class GameOfLifeController {
         // init ui with values from gameOfLifeField and add actionListener
         init();
 
-        // initialize timer
+        gameOfLife.register(fieldPanel);
+        gameOfLife.register(topControlPanel);
+
         this.timer = new Timer(delay, (e) -> gameOfLife.loadNextGeneration());
         timer.setInitialDelay(50);
     }

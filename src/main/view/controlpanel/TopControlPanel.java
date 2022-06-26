@@ -24,12 +24,7 @@ public class TopControlPanel extends JPanel implements Observer {
     private final JLabel coverageTextLabel;
     private final JTextField goToTextField;
 
-    private final GameOfLife gameOfLife;
-
-    public TopControlPanel(GameOfLife gameOfLifeField) {
-        this.gameOfLife = gameOfLifeField;
-        gameOfLifeField.register(this);
-
+    public TopControlPanel() {
         this.setLayout(new FlowLayout(FlowLayout.CENTER, 32, 12));
 
         // create JPanel containing the control buttons
@@ -128,7 +123,7 @@ public class TopControlPanel extends JPanel implements Observer {
     public void addPreviousGenerationButtonActionListener(ActionListener a) {previousGenerationButton.addActionListener(a);}
 
     @Override
-    public void update() {
+    public void update(GameOfLife gameOfLife) {
         generationTextLabel.setText("Generation: " + gameOfLife.getGenerationCounter());
         coverageTextLabel.setText("Coverage: " + gameOfLife.getLivingCellsCoverage() + " %");
 
