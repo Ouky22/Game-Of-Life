@@ -1,7 +1,8 @@
 package main.view.controlpanel;
 
-import main.utility.IconProvider;
 import main.model.GameOfLife;
+import main.model.Observable;
+import main.utility.IconProvider;
 import main.view.Observer;
 
 import javax.swing.*;
@@ -120,10 +121,15 @@ public class TopControlPanel extends JPanel implements Observer {
         goToTextField.addActionListener(a);
     }
 
-    public void addPreviousGenerationButtonActionListener(ActionListener a) {previousGenerationButton.addActionListener(a);}
+    public void addPreviousGenerationButtonActionListener(ActionListener a) {
+        previousGenerationButton.addActionListener(a);
+    }
 
     @Override
-    public void update(GameOfLife gameOfLife) {
+    public void update(Observable observable) {
+        if (!(observable instanceof GameOfLife gameOfLife))
+            return;
+
         generationTextLabel.setText("Generation: " + gameOfLife.getGenerationCounter());
         coverageTextLabel.setText("Coverage: " + gameOfLife.getLivingCellsCoverage() + " %");
 

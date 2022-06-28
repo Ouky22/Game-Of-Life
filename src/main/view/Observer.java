@@ -1,10 +1,11 @@
 package main.view;
 
-import main.model.GameOfLife;
+
+import main.model.Observable;
 
 public interface Observer {
     /**
      * Observable calls this method to notify observers
      */
-    void update(GameOfLife gameOfLife);
+    void update(Observable observable);
 }

@@ -2,6 +2,7 @@ package main.view;
 
 import main.model.GameOfLife;
 import main.model.GofCell;
+import main.model.Observable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,7 +47,10 @@ public class FieldPanel extends JPanel implements Observer {
     }
 
     @Override
-    public void update(GameOfLife gameOfLife) {
+    public void update(Observable observable) {
+        if (!(observable instanceof GameOfLife gameOfLife))
+            return;
+
         // get the positions of the cells which got a new life state and update field panel
         for (GofCell cell : gameOfLife.clearCellsToBeUpdated()) {
             JButton btn = jButtons[cell.getRow()][cell.getColumn()];

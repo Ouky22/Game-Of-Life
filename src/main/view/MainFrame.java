@@ -29,6 +29,7 @@ public class MainFrame extends JFrame {
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(750, 750);
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
