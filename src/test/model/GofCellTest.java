@@ -1,5 +1,6 @@
-package main.model;
+package test.model;
 
+import main.model.GofCell;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;

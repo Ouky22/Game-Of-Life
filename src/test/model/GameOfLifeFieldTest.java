@@ -1,12 +1,13 @@
-package main.model;
+package test.model;
 
+import main.model.GameOfLifeField;
+import main.model.GofCell;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -161,26 +162,6 @@ public class GameOfLifeFieldTest {
 
         // all cells in the field should be dead and the color of all cells should be DEAD_CELL_COLOR
         assertTrue(allCellsDead(gameOfLifeField.getField()));
-    }
-
-    @Test
-    void testGetNextRowAndColumn() {
-        int width = 10;
-        int height = 10;
-        GameOfLifeField gameOfLifeField = new GameOfLifeField(height, width);
-
-        // the field should behave like a torus, so if the row or column index is outside the field boundaries, return
-        // the right row
-
-        // row <= -1 => row = height - 1
-        assertEquals(height - 1, gameOfLifeField.getNextTorusRow(-1));
-        // row >= width => row = 0
-        assertEquals(0, gameOfLifeField.getNextTorusRow(height));
-
-        // column >= -1 => column = width - 1
-        assertEquals(width - 1, gameOfLifeField.getNextTorusColumn(-1));
-        // column >= width => column = 0
-        assertEquals(0, gameOfLifeField.getNextTorusColumn(width));
     }
 
     @Test

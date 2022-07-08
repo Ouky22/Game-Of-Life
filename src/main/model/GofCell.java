@@ -30,7 +30,7 @@ public class GofCell implements Cloneable {
      * @param alive Whether the cell should be alive or not
      * @param color The color the cell should have
      */
-    void set(boolean alive, Color color) {
+    public void set(boolean alive, Color color) {
         this.alive = alive;
         this.color = color;
     }
@@ -58,10 +58,6 @@ public class GofCell implements Cloneable {
 
     public int getColumn() {
         return column;
-    }
-
-    public int[] getCoordinate() {
-        return new int[]{row, column};
     }
 
     @Override

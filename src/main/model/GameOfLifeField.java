@@ -24,7 +24,7 @@ public class GameOfLifeField {
      * @param height The height of the field
      * @param width  The width of the field
      */
-    GameOfLifeField(int height, int width) {
+    public GameOfLifeField(int height, int width) {
         // create field and fill it with GofCells
         field = new GofCell[height][width];
         for (int row = 0; row < field.length; row++)
@@ -45,7 +45,7 @@ public class GameOfLifeField {
      * @param cellColor color of cell
      * @return returns false if row or column are outside the field and true if operation was successful
      */
-    boolean setCellAt(int row, int column, boolean alive, Color cellColor) {
+    public boolean setCellAt(int row, int column, boolean alive, Color cellColor) {
         if (!isCoordinateInField(row, column))
             return false;
 
@@ -59,7 +59,7 @@ public class GameOfLifeField {
      *
      * @return the cells which got a new life state
      */
-    ArrayList<GofCell> getNextGeneration() {
+    public ArrayList<GofCell> getNextGeneration() {
         // contains the positions and colors of cells whose life state needs to be toggled
         HashMap<GofCell, Color> cellPositions = new HashMap<>();
 
@@ -95,7 +95,7 @@ public class GameOfLifeField {
      *
      * @return the cells which got a new life state
      */
-    ArrayList<GofCell> killAllCells() {
+    public ArrayList<GofCell> killAllCells() {
         ArrayList<GofCell> killedCells = new ArrayList<>();
 
         for (GofCell[] cellRow : field)
@@ -138,15 +138,15 @@ public class GameOfLifeField {
         return field[row][column];
     }
 
-    int getHeight() {
+    public int getHeight() {
         return HEIGHT;
     }
 
-    int getWidth() {
+    public int getWidth() {
         return WIDTH;
     }
 
-    boolean isCoordinateInField(int row, int column) {
+    public boolean isCoordinateInField(int row, int column) {
         return row >= 0 && row < HEIGHT && column >= 0 && column < WIDTH;
     }
 
@@ -157,7 +157,7 @@ public class GameOfLifeField {
      * @param row given row, which could be outside the field boundaries
      * @return the next row
      */
-    int getNextTorusRow(int row) {
+    private int getNextTorusRow(int row) {
         if (row < 0)
             return HEIGHT - 1;
         if (row >= HEIGHT)
@@ -172,7 +172,7 @@ public class GameOfLifeField {
      * @param column given column, which could be outside the field boundaries
      * @return the next column
      */
-    int getNextTorusColumn(int column) {
+    private int getNextTorusColumn(int column) {
         if (column < 0)
             return WIDTH - 1;
         if (column >= WIDTH)
@@ -186,7 +186,7 @@ public class GameOfLifeField {
      * one of them is returned.
      * If all cells surrounding the given cell are dead, null is returned
      */
-    Color getMostFrequentlyColor(int row, int column) {
+    public Color getMostFrequentlyColor(int row, int column) {
         HashMap<Color, Integer> colorAmount = new HashMap<>();
 
         for (int i = row - 1; i <= row + 1; i++)
@@ -213,7 +213,7 @@ public class GameOfLifeField {
         return mostFrequentlyColor;
     }
 
-    int getAmountLivingNeighbours(int row, int column) {
+    public int getAmountLivingNeighbours(int row, int column) {
         if (!isCoordinateInField(row, column))
             return 0;
 
@@ -233,7 +233,7 @@ public class GameOfLifeField {
         return counter;
     }
 
-    GofCell[][] getField() {
+    public GofCell[][] getField() {
         return field;
     }
 }
