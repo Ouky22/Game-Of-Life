@@ -1,6 +1,6 @@
 # Game of life
 
-This is an implementation of Conway's Game of Life (see https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+This is an implementation of Conway's Game of Life (see https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). The code is written in Java and the UI is implemented with Java Swing
 
 <img src="docs/ui.png" width="500px" alt="main screen">
 
